@@ -1,0 +1,121 @@
+import { makeStyles } from "@material-ui/core";
+import { customScrollbar, underLine } from '../../../../styles/materialUi';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    background: "transparent", // hoặc "inherit"
+    display: 'flex',
+    borderRadius: 18,
+    margin: '32px 0',
+    boxShadow: "none", // hoặc xóa nếu muốn
+    color: "#222",
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      margin: "16px 0",
+      borderRadius: 12,
+    },
+  },
+  leftSection: {
+    width: "28%",
+    padding: "32px 16px",
+    borderRight: "2px solid #ffeaea",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    background: "#fff",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      borderRight: "none",
+      borderBottom: "2px solid #ffeaea",
+      padding: "16px 8px",
+    },
+  },
+  logo: {
+    width: 60,
+    height: 60,
+    objectFit: "contain",
+    borderRadius: 12,
+    marginBottom: 18,
+    boxShadow: "0 2px 8px 0 rgba(255,23,68,0.10)",
+    background: "#f9f9fb",
+  },
+  tabRoot: {
+    padding: "18px 0",
+    textAlign: "left",
+    fontSize: 15,
+    opacity: 0.6,
+    color: "#222",
+    fontWeight: 600,
+    borderRadius: 10,
+    marginBottom: 8,
+    cursor: "pointer",
+    background: "transparent",
+    transition: "all .2s",
+    "&:hover": {
+      opacity: 1,
+      background: "#fff0f3",
+      color: "#ff1744",
+    },
+    ...underLine,
+  },
+  tabActive: {
+    opacity: 1,
+    background: "#fff0f3",
+    color: "#ff1744",
+    boxShadow: "0 2px 12px 0 rgba(255,23,68,0.10)",
+  },
+  rightSection: {
+    width: "72%",
+    padding: "32px 24px",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      padding: "16px 4px",
+    },
+  },
+  listDay: {
+    height: "auto",
+    minHeight: 64,
+    padding: "12px 0 12px 0",
+    background: "#fff",
+    borderRadius: 12,
+    display: "flex",
+    gap: 12,
+    overflowX: "auto",
+    overflowY: "hidden",
+    whiteSpace: "nowrap",
+    marginBottom: 18,
+    ...customScrollbar,
+  },
+  dayItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: "center",
+    minWidth: 90,
+    padding: "10px 18px",
+    fontWeight: 600,
+    fontSize: 15,
+    color: "#222",
+    background: "#f9f9fb",
+    borderRadius: 8,
+    border: "1.5px solid #ff8a65",
+    cursor: "pointer",
+    marginRight: 8,
+    transition: "background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s",
+    boxShadow: "0 2px 8px 0 rgba(255,23,68,0.06)",
+    "&:hover": {
+      background: "#fff0f3",
+      color: "#ff1744",
+      borderColor: "#ff1744",
+      boxShadow: "0 4px 16px 0 rgba(255,23,68,0.12)",
+    },
+  },
+  dayItemActive: {
+    background: "#fff0f3",
+    color: "#ff1744",
+    borderColor: "#ff1744",
+    boxShadow: "0 4px 16px 0 rgba(255,23,68,0.15)",
+  },
+}));
+
+export default useStyles;
