@@ -1,4 +1,5 @@
 import axiosClient from "./axiosClient";
+import axios from "axios";
 
 const usersApi = {
     postDangKy: (user) => {
@@ -86,10 +87,15 @@ const usersApi = {
         return axiosClient.get(path);
     },
 
-    deleteTicketOfUser : (data) => {
-        const path = `/DeleteTicketOfUser?maGhe=${data.maGhe}&taiKhoanNguoiDat=${data.taiKhoanNguoiDat}`;
-        return axiosClient.delete(path)
-    }
+    deleteTicketOfUser: (maGhe, taiKhoanNguoiDat) => {
+        return axiosClient.delete('/DeleteTicketOfUser', {
+            params: {
+            maGhe,
+            taiKhoanNguoiDat
+            }
+    });
+}
+
 };
 
 export default usersApi;

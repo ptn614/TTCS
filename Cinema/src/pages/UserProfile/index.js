@@ -204,10 +204,16 @@ export default function Index() {
     };
 
     const handleDeleteTicket = (maGhe, taiKhoanNguoiDat) => {
-        console.log("delete")
-        usersApi.deleteTicketOfUser({ maGhe: maGhe, taiKhoanNguoiDat: taiKhoanNguoiDat });
+    usersApi.deleteTicketOfUser(maGhe, taiKhoanNguoiDat)
+        .then(() => {
+        Swal.fire("Hủy vé thành công", "", "success");
         window.location.reload();
-    }
+        })
+        .catch((err) => {
+        Swal.fire("Có lỗi xảy ra", err.message, "error");
+        });
+    };
+
     return (
         <div className="container rounded mb-5">
             <div className="row bg-white">
@@ -415,11 +421,12 @@ export default function Index() {
                                         <td>
                                             <button
                                                 className="btn btn-danger"
-                                                onClick={() => handleDeleteTicket(item.maVe)}
+                                                onClick={() => handleDeleteTicket(item.maGhe, currentUser?.taiKhoan)}
                                             >
                                                 Hủy
                                             </button>
                                         </td>
+
                                     </tr>
                                 ))}
                             </tbody>
