@@ -7,6 +7,7 @@ import { useTheme } from "@material-ui/core/styles";
 import LstCumRap from "./LstCumRap";
 import useStyles from "./style";
 import { underLine } from "../../../styles/materialUi";
+import { logoTheater } from "../../../constants/theaterData";
 import { colorTheater } from "../../../constants/theaterData";
 import MobileLstCumrap from "./MobileLstCumrap";
 import DetailTheater from "./DetailTheater";
@@ -48,24 +49,32 @@ export default function HeThongRap() {
         value={valueHeThongRap}
         classes={{ indicator: classes.tabs__indicator, root: classes.taps }}
       >
-        {theaterList.map((theater, index) => (
-          <Tab
-            onClick={() => setValueHeThongRap(index)}
-            disableRipple
-            classes={{
-              root: classes.tap,
-              textColorInherit: classes.textColorInherit,
-            }}
-            key={theater.maHeThongRap}
-            label={
-              <img
-                style={{ width: "60px", height: "60px" }}
-                src={theater.logo}
-                alt="theaterLogo"
-              />
-            }
-          />
-        ))}
+        {theaterList.map((theater, index) => {
+  console.log("maHeThongRap:", theater.maHeThongRap); // kiểm tra key thực tế
+
+  return (
+    <Tab
+      onClick={() => setValueHeThongRap(index)}
+      disableRipple
+      classes={{
+        root: classes.tap,
+        textColorInherit: classes.textColorInherit,
+      }}
+      key={theater.maHeThongRap}
+      label={
+        <img
+          style={{ width: "60px", height: "60px", objectFit: "contain" }}
+          src={logoTheater[theater.maHeThongRap?.toUpperCase()] ?? "/img/logo-theater/default.png"}
+          alt="theaterLogo"
+          onError={(e) => {
+            e.target.src = "/img/logo-theater/default.png";
+          }}
+        />
+      }
+    />
+  );
+})}
+
       </Tabs>
 
       <div style={{ padding: "20px 50px" }}>

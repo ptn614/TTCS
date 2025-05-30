@@ -7,6 +7,7 @@ import MovieSidebar from "./MovieSidebar";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { getMovieList } from "../../../../reducers/actions/Movie";
+import { logoTheater } from "../../../../constants/theaterData"; // ✅ Thêm dòng này
 
 export default function LichChieuDesktop({ data }) {
   const classes = useStyles();
@@ -50,6 +51,7 @@ export default function LichChieuDesktop({ data }) {
           >
             Lịch chiếu {data?.tenPhim ? data.tenPhim : ""}
           </div>
+
           <Tabs
             variant="scrollable"
             value={value}
@@ -62,7 +64,17 @@ export default function LichChieuDesktop({ data }) {
                 key={theater.maHeThongRap}
                 classes={{ wrapper: classes.wrapper, root: classes.tabRoot }}
                 label={
-                  <img className={classes.logo} src={theater.logo} alt="logoTheater" />
+                  <img
+                    className={classes.logo}
+                    src={
+                      logoTheater[theater.maHeThongRap?.toUpperCase()] ??
+                      "/img/logo-theater/default.png"
+                    }
+                    alt="logoTheater"
+                    onError={(e) => {
+                      e.target.src = "/img/logo-theater/default.png";
+                    }}
+                  />
                 }
               />
             ))}
@@ -88,15 +100,13 @@ export default function LichChieuDesktop({ data }) {
                 {theater.tenHeThongRap}
               </div>
             ))}
-
           </div>
-          {/* Thêm đường thẳng ngang */}
+
           <div className={classes.divider} />
           <div className={classes.rightSection}>
             {data?.heThongRapChieu?.length === 0 && (
               <p style={{ padding: 10 }}>Hiện tại chưa có lịch chiếu cho phim này</p>
             )}
-            
             {data?.heThongRapChieu?.map((theater, i) => (
               <div
                 key={theater.maHeThongRap}
@@ -108,6 +118,7 @@ export default function LichChieuDesktop({ data }) {
           </div>
         </div>
       </div>
+
       {/* Cột phải: Danh sách phim gợi ý */}
       <div style={{ flex: 3, minWidth: 320 }}>
         <MovieSidebar maPhim={data?.maPhim} />

@@ -9,7 +9,9 @@ const moviesApi = {
         return axiosClient.get(path);
     },
     getThongTinPhim: (maPhim) => {
-        const path = `/QuanLyPhim/LayThongTinPhim?MaPhim=${maPhim}`;
+        // Nếu maPhim là object, lấy thuộc tính maPhim hoặc id
+        const id = typeof maPhim === "object" ? maPhim.maPhim || maPhim.id : maPhim;
+        const path = `/QuanLyPhim/LayThongTinPhim?MaPhim=${id}`;
         return axiosClient.get(path);
     },
     getDanhSachPhimTheoNgay: (maNhom, tuNgay, denNgay) => {

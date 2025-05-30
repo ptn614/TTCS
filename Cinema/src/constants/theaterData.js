@@ -7,12 +7,12 @@ const colorTheater = {
   MEG: '#eeb730',
 }
 const logoTheater = {
-  BHD: '/img/logo-theater/bhd.png',
+  BHDSTAR: '/img/logo-theater/bhd.png',       // ✅ sửa key đúng
   CGV: '/img/logo-theater/cgv.png',
-  CNS: '/img/logo-theater/cin.png',
-  GLX: '/img/logo-theater/gal.png',
-  LOT: '/img/logo-theater/lot.png',
-  MEG: '/img/logo-theater/meg.png',
+  CINESTAR: '/img/logo-theater/cin.png',
+  GALAXY: '/img/logo-theater/gal.png',
+  LOTTECINIMA: '/img/logo-theater/lot.png',
+  MEGAGS: '/img/logo-theater/meg.png',
 }
 
 const allCumRapImg = [
