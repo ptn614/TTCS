@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { makeStyles } from "@material-ui/core";
 import { getMovieList } from "../../reducers/actions/Movie";
-import { Link } from "react-router-dom";
-import MovieSearchBar from "../../components/MovieSearchBar";
-import Pagination from "@material-ui/lab/Pagination";
 import { useStyles } from "./style";
-
+import Pagination from "@material-ui/lab/Pagination";
+import axios from "axios";
 
 function getRandomMovies(movies, n) {
     if (!movies || movies.length <= n) return movies;
@@ -15,7 +12,6 @@ function getRandomMovies(movies, n) {
 }
 
 const MOVIES_PER_PAGE = 5;
-const MOVIES_PER_ROW = 4;
 
 export default function MovieShowings() {
     const classes = useStyles();
@@ -28,119 +24,104 @@ export default function MovieShowings() {
     const [topStart, setTopStart] = useState(0);
     const [selectedGenre, setSelectedGenre] = useState('');
     const [selectedCountry, setSelectedCountry] = useState('');
-    const [selectedMovie, setSelectedMovie] = useState('');
     const [searchKeyword, setSearchKeyword] = useState('');
-
-    // Option cố định cho thể loại và quốc gia
-    const genreOptions = [
-        'Hai người tình cảm',
-        'Hài dón',
-    ];
-    const countryOptions = [
-        'Hàn Quốc',
-        'Việt Nam',
-        'Nhật Bản',
-    ];
+    const [dsTheLoai, setDsTheLoai] = useState([]);
 
     useEffect(() => {
         dispatch(getMovieList());
     }, []);
 
     useEffect(() => {
-        setFilteredMovies(movieList || []);
-        setPage(1);
-    }, [movieList]);
+        axios.get("http://localhost:4000/api/QuanLyRap/LayThongTinTheLoaiPhim")
+            .then(res => setDsTheLoai(res.data))
+            .catch(() => setDsTheLoai([]));
+    }, []);
 
-    useEffect(() => {
-        if (filteredMovies.length === (movieList || []).length) {
-            setRecommendMovies(getRandomMovies(movieList, MOVIES_PER_PAGE));
-        }
-    }, [page, movieList, filteredMovies]);
-
-    const handleInputChange = (inputValue) => {
-        if (!inputValue) {
-            setFilteredMovies(movieList || []);
-            setPage(1);
-            return;
-        }
-        const lower = inputValue.toLowerCase();
-        setFilteredMovies(
-            (movieList || []).filter((movie) =>
-                movie.tenPhim.toLowerCase().includes(lower)
-            )
-        );
-        setPage(1);
-    };
-
-    const handleMovieChange = (movie) => {
-        if (!movie) {
-            setFilteredMovies(movieList || []);
-            setPage(1);
-            return;
-        }
-        setFilteredMovies(
-            (movieList || []).filter((m) => m.maPhim === movie.maPhim)
-        );
-        setPage(1);
-    };
-
-    // Top 5 phim nổi bật (lấy 5 phim đầu danh sách)
     const topMoviesToShow = (movieList || []).slice(topStart, topStart + 5);
     const canSlideLeft = topStart > 0;
     const canSlideRight = (movieList || []).length > topStart + 5;
 
-    // Phim dành cho bạn: random 20 phim mỗi trang nếu không lọc, nếu lọc thì chỉ hiển thị kết quả lọc
     const showRecommend = filteredMovies.length === (movieList || []).length && !searchKeyword && !selectedGenre && !selectedCountry;
     const moviesToShow = filteredMovies.slice((page - 1) * MOVIES_PER_PAGE, page * MOVIES_PER_PAGE);
     const pageCount = Math.max(1, Math.ceil(filteredMovies.length / MOVIES_PER_PAGE));
     const showPagination = pageCount > 1;
-    const filteredPagination = filteredMovies.length > MOVIES_PER_PAGE;
 
-    // Lấy danh sách thể loại và quốc gia duy nhất, chuẩn hóa về mảng, loại bỏ khoảng trắng, chữ thường
-    const genreList = Array.from(new Set((movieList || []).flatMap(m => m.theLoai ? (Array.isArray(m.theLoai) ? m.theLoai : m.theLoai.split(',').map(s => s.trim())) : []))).filter(Boolean);
-    const countryList = Array.from(new Set((movieList || []).flatMap(m => m.quocGia ? (Array.isArray(m.quocGia) ? m.quocGia : m.quocGia.split(',').map(s => s.trim())) : []))).filter(Boolean);
+    const genreList = Array.from(new Set((movieList || []).flatMap(m => m.maTheLoaiPhim ? [m.maTheLoaiPhim] : []))).filter(Boolean);
+    const countryList = Array.from(new Set((movieList || []).flatMap(m => m.nhaSanXuat ? (Array.isArray(m.nhaSanXuat) ? m.nhaSanXuat : m.nhaSanXuat.split(',').map(s => s.trim())) : []))).filter(Boolean);
 
-    // Lọc phim theo tên, thể loại, quốc gia (so sánh với option cố định, không phân biệt hoa thường)
+    const getTenTheLoai = (ma) => {
+        const found = dsTheLoai.find(tl => Number(tl.id) === Number(ma));
+        return found ? found.tenTheLoai : ma;
+    };
+
     const filterMovies = (list) => {
         return (list || []).filter(movie => {
-            const movieGenres = movie.theLoai
-                ? (Array.isArray(movie.theLoai)
-                    ? movie.theLoai.map(s => s.trim().toLowerCase())
-                    : movie.theLoai.split(',').map(s => s.trim().toLowerCase()))
-                : [];
-            const movieCountries = movie.quocGia
-                ? (Array.isArray(movie.quocGia)
-                    ? movie.quocGia.map(s => s.trim().toLowerCase())
-                    : movie.quocGia.split(',').map(s => s.trim().toLowerCase()))
+            const movieGenres = movie.maTheLoaiPhim ? [Number(movie.maTheLoaiPhim)] : [];
+            const movieCountries = movie.nhaSanXuat
+                ? (Array.isArray(movie.nhaSanXuat)
+                    ? movie.nhaSanXuat.map(s => s.trim().toLowerCase())
+                    : movie.nhaSanXuat.split(',').map(s => s.trim().toLowerCase()))
                 : [];
             const matchKeyword = !searchKeyword || movie.tenPhim.toLowerCase().includes(searchKeyword.toLowerCase());
-            const matchGenre = !selectedGenre || movieGenres.includes(selectedGenre.toLowerCase());
+            const matchGenre = !selectedGenre || movieGenres.includes(Number(selectedGenre));
             const matchCountry = !selectedCountry || movieCountries.includes(selectedCountry.toLowerCase());
             return matchKeyword && matchGenre && matchCountry;
         });
     };
 
-    // Sửa lại các nơi dùng movieList để dùng filterMovies(movieList)
     useEffect(() => {
-        setFilteredMovies(filterMovies(movieList));
-        setPage(1);
+        if (movieList) {
+            const filtered = filterMovies(movieList);
+            setFilteredMovies(filtered);
+            setPage(1);
+        }
     }, [movieList, selectedGenre, selectedCountry, searchKeyword]);
 
     const handleGenreChange = (e) => {
-        setSelectedGenre(e.target.value);
-    };
-    const handleCountryChange = (e) => {
-        setSelectedCountry(e.target.value);
+        const value = e.target.value;
+        setSelectedGenre(value);
     };
 
-    // Khi chọn tên phim, chỉ hiển thị phim đó (lọc danh sách bên dưới)
-    const handleMovieSelect = (e) => {
-        setSelectedMovie(e.target.value);
-        setPage(1);
+    const handleCountryChange = (e) => {
+        const value = e.target.value;
+        setSelectedCountry(value);
     };
 
     return (
         <div className={classes.root}>
+            {/* Promotional Section */}
+            <div className={classes.promoSection}>
+                <div className={classes.promoContainer}>
+                    <div className={classes.promoTextContainer}>
+                        <h2 className={classes.promoTitle}>Phim chiếu rạp 2025 trên MoMo</h2>
+                        <p className={classes.promoSubtitle}>
+                            Danh sách Phim Chiếu Rạp 2025 đặc sắc và đáng mong đợi trên MoMo Cinema
+                        </p>
+                        <ul className={classes.promoList}>
+                            <li className={classes.promoListItem}>
+                                <span className={classes.promoCheckmark}>✓</span> Đa dạng phim chiếu rạp 2025
+                            </li>
+                            <li className={classes.promoListItem}>
+                                <span className={classes.promoCheckmark}>✓</span> Lịch chiếu phim cập nhật đầy đủ nhất
+                            </li>
+                            <li className={classes.promoListItem}>
+                                <span className={classes.promoCheckmark}>✓</span> Đánh giá phim rạp chi tiết chân thật
+                            </li>
+                            <li className={classes.promoListItem}>
+                                <span className={classes.promoCheckmark}>✓</span> Đặt vé xem phim Online dễ dàng
+                            </li>
+                        </ul>
+                    </div>
+                    <div className={classes.promoImageContainer}>
+                        <img
+                            src="https://homepage.momocdn.net/img/momo-amazone-s3-api-241016111327-638646740077856660.jpg"
+                            alt="Phim chiếu rạp trên MoMo"
+                            className={classes.promoImage}
+                        />
+                    </div>
+                </div>
+            </div>
+
             {/* Section phim đang chiếu nổi bật */}
             <div className={classes.topMoviesSection}>
                 <div className={classes.topMoviesOverlay}></div>
@@ -153,7 +134,7 @@ export default function MovieShowings() {
                                 onClick={() => setTopStart(topStart - 1)}
                                 aria-label="Xem phim trước"
                             >
-                                &#8592;
+                                ←
                             </button>
                         )}
                         {canSlideRight && (
@@ -162,7 +143,7 @@ export default function MovieShowings() {
                                 onClick={() => setTopStart(topStart + 1)}
                                 aria-label="Xem phim tiếp"
                             >
-                                &#8594;
+                                →
                             </button>
                         )}
                         <div className={classes.topMoviesRow}>
@@ -178,34 +159,45 @@ export default function MovieShowings() {
                                         className={classes.topMovieImage}
                                     />
                                     <div className={classes.topMoviePosterOverlay}></div>
-                                    <div className={classes.movieOverlay}>
-                                        <div className={classes.overlayButtons}>
-                                            <button
-                                                className={classes.overlayBtn}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    window.location.href = `/detail/${movie.maPhim}`;
-                                                }}
-                                            >
-                                                Đặt vé
-                                            </button>
-                                            <button
-                                                className={classes.overlayBtn}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    window.location.href = `/detail/${movie.maPhim}`;
-                                                }}
-                                            >
-                                                Chi tiết
-                                            </button>
+                                    <div className={classes.topMovieOverlay}>
+                                        <div className={classes.overlayTitle}>{movie.tenPhim} (T16)</div>
+                                        <div className={classes.overlayDetails}>
+                                            <div className={classes.detailItem}>
+                                                <span className={classes.detailIcon}>🎭</span>
+                                                <span className={classes.detailText}>{getTenTheLoai(movie.maTheLoaiPhim)}</span>
+                                            </div>
+                                            <div className={classes.detailItem}>
+                                                <span className={classes.detailIcon}>⏳</span>
+                                                <span className={classes.detailText}>120'</span>
+                                            </div>
+                                            <div className={classes.detailItem}>
+                                                <span className={classes.detailIcon}>🌏</span>
+                                                <span className={classes.detailText}>
+                                                    {Array.isArray(movie.nhaSanXuat) 
+                                                        ? movie.nhaSanXuat.join(', ') 
+                                                        : (movie.nhaSanXuat || 'Khác')}
+                                                </span>
+                                            </div>
+                                            <div className={classes.detailItem}>
+                                                <span className={classes.detailIcon}>💬</span>
+                                                <span className={classes.detailText}>Phụ đề</span>
+                                            </div>
                                         </div>
+
                                     </div>
                                     <div className={classes.topMovieIndex}>{topStart + idx + 1}</div>
+
                                     <div className={classes.topMovieTitle}>{movie.tenPhim}</div>
-                                    <div className={classes.topMovieDivider}></div>
-                                    <div className={classes.topMovieMeta}>
-                                        {movie.thoiLuong}Phút
-                                        {movie.ngayKhoiChieu ? ` | ${new Date(movie.ngayKhoiChieu).toLocaleDateString('vi-VN')}` : ''}
+                                    <div className={classes.overlayButtons}>
+                                        <button
+                                            className={classes.overlayBtn}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                window.location.href = `/detail/${movie.maPhim}`;
+                                            }}
+                                        >
+                                            Đặt vé
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -213,7 +205,6 @@ export default function MovieShowings() {
                     </div>
                 </div>
             </div>
-
 
             {/* Section tìm kiếm phim */}
             <div style={{
@@ -230,15 +221,19 @@ export default function MovieShowings() {
                     <div className={classes.sectionTitle}>Tìm kiếm phim trên Phú Lê Movie</div>
                     <select className={classes.filterSelect} value={selectedGenre} onChange={handleGenreChange}>
                         <option value="">Thể loại</option>
-                        {genreOptions.map((g) => (
-                            <option key={g} value={g}>{g}</option>
+                        {genreList.map((g) => (
+                            <option key={g} value={g}>
+                                {getTenTheLoai(g)}
+                            </option>
                         ))}
                     </select>
                     <select className={classes.filterSelect} value={selectedCountry} onChange={handleCountryChange}>
                         <option value="">Quốc gia</option>
-                        {countryOptions.map((c) => (
+                        {countryList.map((c) => (
                             <option key={c} value={c}>{c}</option>
                         ))}
+                        ré
+
                     </select>
                     <input
                         className={classes.searchInput}
@@ -250,52 +245,59 @@ export default function MovieShowings() {
                 </div>
 
                 <div className={classes.movieGrid}>
-                    {moviesToShow.map((movie) => (
+                    {moviesToShow.map((movie, idx) => (
                         <div
                             key={movie.maPhim}
-                            className={classes.movieCard}
+                            className={classes.topMovieCard}
                             onClick={() => window.location.href = `/detail/${movie.maPhim}`}
                         >
                             <img
                                 src={movie.hinhAnh}
                                 alt={movie.tenPhim}
-                                className={classes.movieImage}
+                                className={classes.topMovieImage}
                             />
-                            <div className={classes.movieOverlay}>
-                                <div className={classes.overlayButtons}>
-                                    <button
-                                        className={classes.overlayBtn}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            window.location.href = `/detail/${movie.maPhim}`;
-                                        }}
-                                    >
-                                        Đặt vé
-                                    </button>
-                                    <button
-                                        className={classes.overlayBtn}
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            window.location.href = `/detail/${movie.maPhim}`;
-                                        }}
-                                    >
-                                        Chi tiết
-                                    </button>
+                            <div className={classes.topMoviePosterOverlay}></div>
+                            <div className={classes.topMovieOverlay}>
+                                <div className={classes.overlayTitle}>{movie.tenPhim} (T16)</div>
+                                <div className={classes.overlayDetails}>
+                                    <div className={classes.detailItem}>
+                                        <span className={classes.detailIcon}>🎭</span>
+                                        <span className={classes.detailText}>{getTenTheLoai(movie.maTheLoaiPhim)}</span>
+                                    </div>
+                                    <div className={classes.detailItem}>
+                                        <span className={classes.detailIcon}>⏳</span>
+                                        <span className={classes.detailText}>{movie.thoiLuong || 120}'</span>
+                                    </div>
+                                    <div className={classes.detailItem}>
+                                        <span className={classes.detailIcon}>🌏</span>
+                                        <span className={classes.detailText}>
+                                            {Array.isArray(movie.nhaSanXuat) 
+                                                ? movie.nhaSanXuat.join(', ') 
+                                                : (movie.nhaSanXuat || 'Khác')}
+                                        </span>
+                                    </div>
+                                    <div className={classes.detailItem}>
+                                        <span className={classes.detailIcon}>💬</span>
+                                        <span className={classes.detailText}>Phụ đề</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div className={classes.movieInfo}>
-                                <div className={classes.movieTitle}>{movie.tenPhim}</div>
-                                <div className={classes.movieDivider}></div>
-                                <div className={classes.movieMeta}>
-                                    {movie.thoiLuong}Phút
-                                    {movie.ngayKhoiChieu ? ` | ${new Date(movie.ngayKhoiChieu).toLocaleDateString('vi-VN')}` : ''}
-                                </div>
+                            <div className={classes.topMovieTitle}>{movie.tenPhim}</div>
+                            <div className={classes.overlayButtons}>
+                                <button
+                                    className={classes.overlayBtn}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        window.location.href = `/detail/${movie.maPhim}`;
+                                    }}
+                                >
+                                    Đặt vé
+                                </button>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Phân trang cho phần tìm kiếm phim */}
                 {showPagination && (
                     <div className={classes.paginationWrap}>
                         <Pagination
@@ -310,4 +312,4 @@ export default function MovieShowings() {
             </div>
         </div>
     );
-} 
+}

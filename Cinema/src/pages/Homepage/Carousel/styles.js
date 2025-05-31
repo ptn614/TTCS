@@ -7,7 +7,11 @@ const useStyles = makeStyles((theme) => ({
   itemSlider: {
     position: 'relative'
   },
-  img: { height: "100%", width: "100%" },
+  img: {
+    height: "600px",
+    width: "1600px",
+    objectFit: "cover" // Thêm dòng này
+  },
   backgroundLinear: {
     position: "absolute",
     width: "100%",
@@ -26,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
     color: "#d8d8d8 !important",
     cursor: "pointer",
     transition: "all .2s",
+    padding: "100px 100px",
     '&:hover': { color: 'rgb(238, 130, 59) !important' },
     [theme.breakpoints.down("md")]: {
       display: "none",

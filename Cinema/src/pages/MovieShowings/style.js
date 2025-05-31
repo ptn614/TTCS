@@ -2,8 +2,8 @@ import { makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        padding: "20px 24px 40px",  // bỏ padding-top 80px
-        backgroundColor: "#f8f9fa",
+        padding: "20px 24px 40px",
+        backgroundColor: "#fff5f8",
         minHeight: "100vh",
     },
     container: {
@@ -25,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         alignSelf: 'center',
-
     },
     searchBarRow: {
         display: 'flex',
@@ -94,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
     topMoviesSection: {
         position: 'relative',
         width: '100%',
-        minHeight: 420,
+        minHeight: 550,
         background: 'url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8cLYpjR8rhPA6f0IR9cWDrQRBqHLbPsJPsw&s) center/cover no-repeat',
         margin: '0 auto',
         display: 'flex',
@@ -145,23 +144,24 @@ const useStyles = makeStyles((theme) => ({
         position: 'relative',
         borderRadius: 6,
         overflow: "hidden",
-        backgroundColor: "#fff",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+        backgroundColor: "transparent",
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         cursor: 'pointer',
         transition: 'transform 0.3s',
         '&:hover': {
-            transform: 'translateY(-8px) scale(1.04)',
+            // transform: 'translateY(-8px) scale(1.04)',
         },
-        '&:hover $movieOverlay': {
+        '&:hover $topMovieOverlay': {
             opacity: 1,
+            transform: 'translateY(-7px)', // Chỉ translateY, không scale
+
         },
     },
     topMovieImage: {
         width: '100%',
-        height: 260,
+        height: 320,
         objectFit: 'cover',
         display: 'block',
         borderRadius: 6,
@@ -171,7 +171,7 @@ const useStyles = makeStyles((theme) => ({
         left: 0,
         top: 0,
         width: '100%',
-        height: '100%',
+        height: 320,
         pointerEvents: 'none',
         background: 'linear-gradient(to bottom, rgba(0,0,0,0) 70%, rgba(0,0,0,0.7) 100%)',
         zIndex: 2,
@@ -181,7 +181,7 @@ const useStyles = makeStyles((theme) => ({
         top: 0,
         left: 0,
         width: '100%',
-        height: '100%',
+        height: 320,
         background: 'rgba(0,0,0,0.55)',
         opacity: 0,
         transition: 'opacity 0.3s',
@@ -191,36 +191,98 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: 'center',
         zIndex: 4,
     },
+    topMovieOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: 330,
+        background: 'rgba(0,0,0,0.75)', // Darker background to match the image
+        opacity: 0,
+        transform: 'translateY(0)', // Giá trị mặc định
+        transition: 'opacity 0.3s, transform 0.3s cubic-bezier(0.4,0,0.2,1)', // Thêm cubic-bezier cho mượt
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 4,
+        padding: '16px', // Match padding from the image
+    },
+    overlayTitle: {
+        fontSize: 20,
+        fontWeight: 800,
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: 12, // Match spacing from the image
+        textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+        lineHeight: 1.3,
+        textTransform: 'uppercase', // Match the uppercase style in the image
+    },
+    overlayDetails: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginBottom: 12, // Space between details and button
+    },
+    detailItem: {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: 8, // Space between each detail item
+    },
+    detailIcon: {
+        fontSize: 16,
+        color: '#FFD600', // Yellow to match the button
+        marginRight: 8, // Space between icon and text
+    },
+    detailText: {
+        fontSize: 14,
+        fontWeight: 500,
+        color: '#fff',
+        textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+    },
     overlayButtons: {
         display: 'flex',
         flexDirection: 'column',
         gap: 16,
         alignItems: 'center',
+        marginBottom: 12, // Space between button and logo
     },
     overlayBtn: {
         background: 'transparent',
         color: '#FFD600',
         border: '2px solid #FFD600',
         borderRadius: 4,
-        padding: '12px 36px',
+        padding: '8px 32px', // Match button size from the image
         fontWeight: 700,
-        fontSize: 18,
+        fontSize: 16,
         cursor: 'pointer',
-        margin: '0 0',
         transition: 'background 0.2s, color 0.2s',
         outline: 'none',
         boxShadow: 'none',
-        textTransform: 'none',
+        textTransform: 'uppercase', // Match the uppercase style in the image
         letterSpacing: 0,
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
         '&:hover': {
             background: '#FFD600',
             color: '#222',
         },
     },
+    overlayLogo: {
+        fontSize: 20,
+        fontWeight: 900,
+        color: '#FF0000', // Red to match the logo in the image
+        textAlign: 'center',
+        textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
     topMovieIndex: {
         position: 'absolute',
         left: 0,
-        bottom: 55,
+        bottom: 90,
         color: '#fff',
         fontWeight: 700,
         fontStyle: 'italic',
@@ -228,6 +290,7 @@ const useStyles = makeStyles((theme) => ({
         zIndex: 3,
         lineHeight: 1.1,
         background: 'transparent',
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
         textShadow: '2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 2px 0 #000, 2px 0 0 #000, 0 -2px 0 #000, -2px 0 0 #000',
         padding: 0,
         borderRadius: 0,
@@ -261,6 +324,7 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'center',
         marginTop: 0,
         padding: '2px 0',
+        display: 'none',
     },
     topMoviesSliderBtn: {
         position: 'absolute',
@@ -314,10 +378,11 @@ const useStyles = makeStyles((theme) => ({
     movieCard: {
         borderRadius: 6,
         overflow: "hidden",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        boxShadow: "none",
+        border: "none",
         transition: "transform 0.3s ease",
         cursor: "pointer",
-        backgroundColor: "#fff",
+        backgroundColor: "transparent",
         position: 'relative',
         '&:hover': {
             transform: "translateY(-8px)",
@@ -334,10 +399,9 @@ const useStyles = makeStyles((theme) => ({
         borderRadius: 6,
     },
     movieInfo: {
-        padding: '12px 16px 8px 16px',
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
-        background: '#fff',
+        padding: '12px 0',
+        background: 'transparent',
+        textAlign: 'center',
     },
     movieTitle: {
         fontSize: 16,
@@ -349,13 +413,6 @@ const useStyles = makeStyles((theme) => ({
         overflow: 'visible',
         textOverflow: 'unset',
         lineHeight: 1.2,
-    },
-    movieDivider: {
-        width: '100%',
-        height: 1.5,
-        background: '#e0e0e0',
-        margin: '4px 0',
-        border: 'none',
     },
     movieMeta: {
         fontSize: 14,
@@ -410,10 +467,11 @@ const useStyles = makeStyles((theme) => ({
     recommendedCard: {
         borderRadius: 6,
         overflow: "hidden",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        boxShadow: "none",
+        border: "none",
         transition: "transform 0.3s ease",
         cursor: "pointer",
-        backgroundColor: "#fff",
+        backgroundColor: "transparent",
         position: 'relative',
         '&:hover': {
             transform: "translateY(-8px)",
@@ -430,10 +488,9 @@ const useStyles = makeStyles((theme) => ({
         borderRadius: 6,
     },
     recommendedInfo: {
-        padding: '12px 16px 8px 16px',
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
-        background: '#fff',
+        padding: '12px 0',
+        background: 'transparent',
+        textAlign: 'center',
     },
     recommendedMovieTitle: {
         fontSize: 16,
@@ -445,13 +502,6 @@ const useStyles = makeStyles((theme) => ({
         overflow: 'visible',
         textOverflow: 'unset',
         lineHeight: 1.2,
-    },
-    recommendedMovieDivider: {
-        width: '100%',
-        height: 1.5,
-        background: '#e0e0e0',
-        margin: '4px 0',
-        border: 'none',
     },
     recommendedMovieMeta: {
         fontSize: 14,
@@ -473,8 +523,75 @@ const useStyles = makeStyles((theme) => ({
         paddingTop: 40,
         textAlign: 'center',
         display: 'block',
-
+    },
+    promoSection: {
+        position: 'relative',
+        width: '100vw',
+        left: '50%',
+        marginLeft: '-50vw',
+        padding: '40px 0',
+        backgroundColor: '#fff5f8',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    promoContainer: {
+        maxWidth: 1100,
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px',
+        margin: '70px auto',
+    },
+    promoTextContainer: {
+        flex: 1,
+        paddingRight: '40px',
+    },
+    promoTitle: {
+        fontSize: 40,
+        fontWeight: 900,
+        color: '#e4087e',
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+        marginBottom: 16,
+        lineHeight: 1.2,
+    },
+    promoSubtitle: {
+        fontSize: 20,
+        fontWeight: 500,
+        color: '#222',
+        marginBottom: 16,
+        lineHeight: 1.4,
+    },
+    promoList: {
+        listStyle: 'none',
+        padding: 0,
+        margin: 0,
+    },
+    promoListItem: {
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: 18,
+        color: '#222',
+        marginBottom: 12,
+        lineHeight: 1.4,
+    },
+    promoCheckmark: {
+        width: 24,
+        height: 24,
+        marginRight: 8,
+        color: '#e4087e',
+    },
+    promoImageContainer: {
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'flex-end',
+    },
+    promoImage: {
+        maxWidth: '100%',
+        height: 'auto',
+        borderRadius: 8,
     },
 }));
 
-export { useStyles }; 
+export { useStyles };

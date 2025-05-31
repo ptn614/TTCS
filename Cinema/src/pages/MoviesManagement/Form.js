@@ -19,8 +19,8 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
     const [base64Img, setBase64Img] = useState(selectedPhim?.hinhAnh)
     const [listTheater, setListTheater] = useState([]);
     const [roomData, setRoomData] = useState({
-        maTheLoai: null,
-      });
+        maTheLoai: selectedPhim?.maTheLoaiPhim || null, // Giá trị ban đầu từ selectedPhim
+    });
     useEffect(() => {
         theatersApi.getThongTinCuaTheLoaiPhim().then(response => {
             setListTheater(response.data)
@@ -29,10 +29,10 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setRoomData(prevState => ({
-          ...prevState,
-          [name]: value
+            ...prevState,
+            [name]: value
         }));
-      };
+    };
 
     const setThumbnailPreviews = (e) => {
         let file = e.target;
@@ -59,17 +59,16 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
     const handleSubmit = (movieObj) => {
         let hinhAnh = movieObj.hinhAnh
         let fakeImage = { srcImage, maPhim: movieObj.maPhim }
-        var ngayKC = addHours(movieObj.ngayKhoiChieu, 7);
+        var ngayKC = addHours(new Date(movieObj.ngayKhoiChieu), 7);
         movieObj = { ...movieObj, ngayKhoiChieu: ngayKC }
         movieObj.hinhAnh = base64Img;
-        
+        movieObj.maTheLoaiPhim = roomData.maTheLoai; // Sử dụng đúng tên trường maTheLoaiPhim
+
         if (selectedPhim.maPhim) {
-            movieObj.maTheLoaPhim = roomData.maTheLoai;
             onUpdate(movieObj, hinhAnh, fakeImage)
             return
         }
         const newMovieObj = { ...movieObj }
-        newMovieObj.maTheLoaiPhim = roomData.maTheLoai;
         delete newMovieObj.maPhim
         delete newMovieObj.biDanh
         delete newMovieObj.danhGia
@@ -118,36 +117,36 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
     return (
         <Formik
             initialValues={{
-                maPhim: selectedPhim.maPhim,
-                tenPhim: selectedPhim.tenPhim,
-                biDanh: selectedPhim.biDanh,
-                trailer: selectedPhim.trailer,
-                hinhAnh: selectedPhim.hinhAnh,
-                daoDien: selectedPhim.daoDien,
-                dienVien: selectedPhim.dienVien,
-                dinhDang: selectedPhim.dinhDang,
-                quocGiaSX: selectedPhim.quocGiaSX,
-                moTa: selectedPhim.moTa,
+                maPhim: selectedPhim.maPhim || '',
+                tenPhim: selectedPhim.tenPhim || '',
+                biDanh: selectedPhim.biDanh || '',
+                trailer: selectedPhim.trailer || '',
+                hinhAnh: selectedPhim.hinhAnh || '',
+                daoDien: selectedPhim.daoDien || '',
+                dienVien: selectedPhim.dienVien || '',
+                dinhDang: selectedPhim.dinhDang || '',
+                quocGiaSX: selectedPhim.quocGiaSX || '',
+                moTa: selectedPhim.moTa || '',
                 maNhom: 'GP09',
                 ngayKhoiChieu: selectedPhim?.ngayKhoiChieu ? new Date(selectedPhim.ngayKhoiChieu) : new Date(),
-                danhGia: selectedPhim.danhGia,
+                danhGia: selectedPhim.danhGia || '',
             }}
             validationSchema={movieSchema}
             onSubmit={handleSubmit}
         >{(formikProp) => (
             <Form >
                 <div className="form-group">
-                    <label>Tên phim&nbsp;</label>
+                    <label>Tên phim </label>
                     <ErrorMessage name="tenPhim" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field name="tenPhim" className="form-control" />
                 </div>
                 <div className="form-group">
-                    <label>Trailer&nbsp;</label>
+                    <label>Trailer </label>
                     <ErrorMessage name="trailer" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field name="trailer" className="form-control" />
                 </div>
                 <div className="form-group">
-                    <label>Hình ảnh&nbsp;</label>
+                    <label>Hình ảnh </label>
                     <ErrorMessage name="hinhAnh" render={msg => <span className="text-danger">{msg}</span>} />
                     <div className="form-row">
                         <div className="col-2">
@@ -163,47 +162,46 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
                     </div>
                 </div>
                 <div className="form-group">
-                    <label>Đạo diễn&nbsp;</label>
+                    <label>Đạo diễn </label>
                     <ErrorMessage name="daoDien" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field as="textarea" name="daoDien" className="form-control" />
                 </div>
                 <div className="form-group">
-                    <label>Diễn viên&nbsp;</label>
+                    <label>Diễn viên </label>
                     <ErrorMessage name="dienVien" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field as="textarea" name="dienVien" className="form-control" />
                 </div>
                 <div className="form-group">
-                    <label>Dinh dạng&nbsp;</label>
+                    <label>Dinh dạng </label>
                     <ErrorMessage name="dinhDang" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field as="textarea" name="dinhDang" className="form-control" />
                 </div>
                 <div className="form-group">
-                    <label>Quốc Gia SX&nbsp;</label>
+                    <label>Quốc Gia SX </label>
                     <ErrorMessage name="quocGiaSX" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field as="textarea" name="quocGiaSX" className="form-control" />
                 </div>
                 <div className="form-group">
-                    <label>Mô tả&nbsp;</label>
+                    <label>Mô tả </label>
                     <ErrorMessage name="moTa" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field as="textarea" name="moTa" className="form-control" />
                 </div>
                 <div className="form-group">
-                    <label>Thể Loại Phim&nbsp;</label>
+                    <label>Thể Loại Phim </label>
                     <select
                         className="form-control"
                         name="maTheLoai"
-                        aria-label="Default select example"
-                        value={roomData.maTheLoai}
+                        value={roomData.maTheLoai || ''}
                         onChange={handleInputChange}
                     >
-                        <option>--Chọn Thể Loại Phim--</option>
+                        <option value="">--Chọn Thể Loại Phim--</option>
                         {listTheater.map(system => (
                             <option key={system.id} value={system.id}>{system.tenTheLoai}</option>
                         ))}
                     </select>
                 </div>
                 <div className="form-group">
-                    <label>Ngày khởi chiếu&nbsp;</label>
+                    <label>Ngày khởi chiếu </label>
                     <ErrorMessage name="ngayKhoiChieu" render={msg => <span className="text-danger">{msg}</span>} />
                     <FormControl className={classes.formControl} focused={false}>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -218,7 +216,7 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
                     </FormControl>
                 </div>
                 <div className="form-group" hidden={selectedPhim.maPhim ? false : true}>
-                    <label>Đánh giá&nbsp;</label>
+                    <label>Đánh giá </label>
                     <ErrorMessage name="danhGia" render={msg => <span className="text-danger">{msg}</span>} />
                     <Field name="danhGia" type="number" className="form-control" />
                 </div>
