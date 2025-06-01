@@ -65,20 +65,30 @@ const validateToken = (req, res) => {
 
 app.get('/api/QuanLyPhim/LayDanhSachBanner', (req, res) => {
     const banners = [
-        {
-            maBanner: 1,
-            maPhim: 1282,
-            hinhAnh: "https://kenh14cdn.com/203336854389633024/2025/4/27/landscapeavatarcopy90557b580-7e0d-4305-a306-5d0615d8086b-1745668232982630934548-1745768336934-1745768337934948507153.jpg"
-        },
-        {
+        // {
+        //     maBanner: 1,
+        //     maPhim: 1282,
+        //     hinhAnh: "https://kenh14cdn.com/203336854389633024/2025/4/27/landscapeavatarcopy90557b580-7e0d-4305-a306-5d0615d8086b-1745668232982630934548-1745768336934-1745768337934948507153.jpg"
+        // },
+        // {
+        //     maBanner: 2,
+        //     maPhim: 1283,
+        //     hinhAnh: "https://media-cdn-v2.laodong.vn/storage/newsportal/2025/5/2/1500372/Hq720-2.jpg"
+        // },
+        // {
+        //     maBanner: 3,
+        //     maPhim: 1284,
+        //     hinhAnh: "https://kenh14cdn.com/203336854389633024/2025/5/20/ngangcopy2742716ff-1bcf-43b3-b951-27b9e4c0eadf-1747648132674983495790-1747699738210-1747699738435998076680.jpg"
+        // }
+            {
             maBanner: 2,
-            maPhim: 1283,
-            hinhAnh: "https://media-cdn-v2.laodong.vn/storage/newsportal/2025/5/2/1500372/Hq720-2.jpg"
+            maPhim: 1282,
+            hinhAnh: "https://media.lottecinemavn.com/Media/WebAdmin/56b4cbb3690e4009b289e62fc2949895.jpg"
         },
         {
             maBanner: 3,
-            maPhim: 1284,
-            hinhAnh: "https://kenh14cdn.com/203336854389633024/2025/5/20/ngangcopy2742716ff-1bcf-43b3-b951-27b9e4c0eadf-1747648132674983495790-1747699738210-1747699738435998076680.jpg"
+            maPhim: 1283,
+            hinhAnh: "https://media.lottecinemavn.com/Media/WebAdmin/a28d725b845842b8a36cfe017d13125d.png"
         }
     ];
 
@@ -103,7 +113,7 @@ app.get('/api/create_payment_url', function (req, res, next) {
     let ipAddr = req.headers['x-forwarded-for'] ||
         req.connection.remoteAddress ||
         req.socket.remoteAddress ||
-        req.connection.socket.remoteAddress;
+        req.connection.socket?.remoteAddress;
 
     let config = require('config');
     const { amount, maLichChieu, danhSachVe, taiKhoanNguoiDung } = req.query;
@@ -111,8 +121,9 @@ app.get('/api/create_payment_url', function (req, res, next) {
     let secretKey = config.get('vnp_HashSecret');
     let vnpUrl = config.get('vnp_Url');
     let returnUrl = config.get('vnp_ReturnUrl');
-    let orderId = moment(date).format('DDHHmmss');
 
+    // ✅ SỬA Ở ĐÂY: orderId duy nhất bằng timestamp
+    let orderId = date.getTime();
 
     let querystring = require('qs');
     let returnUrlParams = querystring.stringify({
@@ -138,22 +149,23 @@ app.get('/api/create_payment_url', function (req, res, next) {
 
     console.log('Amount:', amount);
     console.log('Ma Lich Chieu:', maLichChieu);
-    console.log('Tai Khoan: ', taiKhoanNguoiDung)
-    console.log('Danh sach ve: ', danhSachVe)
+    console.log('Tai Khoan: ', taiKhoanNguoiDung);
+    console.log('Danh sach ve: ', danhSachVe);
 
     vnp_Params = sortObject(vnp_Params);
-
 
     let signData = querystring.stringify(vnp_Params, { encode: false });
     let crypto = require("crypto");
     let hmac = crypto.createHmac("sha512", secretKey);
-    let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
     vnp_Params['vnp_SecureHash'] = signed;
+
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
 
     console.log(vnpUrl);
-    res.send(vnpUrl)
+    res.send(vnpUrl);
 });
+
 
 // QuanLyRap
 
@@ -1073,3 +1085,4 @@ function sortObject(obj) {
     }
     return sorted;
 }
+

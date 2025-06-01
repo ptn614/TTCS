@@ -93,9 +93,9 @@ export default function MovieShowings() {
             <div className={classes.promoSection}>
                 <div className={classes.promoContainer}>
                     <div className={classes.promoTextContainer}>
-                        <h2 className={classes.promoTitle}>Phim chiếu rạp 2025 trên MoMo</h2>
+                        <h2 className={classes.promoTitle}>Phim chiếu rạp 2025 trên MoMo Cinema</h2>
                         <p className={classes.promoSubtitle}>
-                            Danh sách Phim Chiếu Rạp 2025 đặc sắc và đáng mong đợi trên MoMo Cinema
+                            Danh sách Phim Chiếu Rạp 2025 đặc sắc và đáng mong đợi trên MoMo Cinema.
                         </p>
                         <ul className={classes.promoList}>
                             <li className={classes.promoListItem}>
@@ -173,8 +173,8 @@ export default function MovieShowings() {
                                             <div className={classes.detailItem}>
                                                 <span className={classes.detailIcon}>🌏</span>
                                                 <span className={classes.detailText}>
-                                                    {Array.isArray(movie.nhaSanXuat) 
-                                                        ? movie.nhaSanXuat.join(', ') 
+                                                    {Array.isArray(movie.nhaSanXuat)
+                                                        ? movie.nhaSanXuat.join(', ')
                                                         : (movie.nhaSanXuat || 'Khác')}
                                                 </span>
                                             </div>
@@ -186,8 +186,14 @@ export default function MovieShowings() {
 
                                     </div>
                                     <div className={classes.topMovieIndex}>{topStart + idx + 1}</div>
-
-                                    <div className={classes.topMovieTitle}>{movie.tenPhim}</div>
+                                    <div>
+                                        <div className={classes.topMovieInfo}>
+                                            Khởi chiếu: {movie.ngayKhoiChieu ? new Date(movie.ngayKhoiChieu).toLocaleDateString('vi-VN') : 'Đang cập nhật'}
+                                        </div>
+                                        <div className={classes.topMovieTitleNowShowing}>
+                                            {movie.tenPhim}
+                                        </div>
+                                    </div>
                                     <div className={classes.overlayButtons}>
                                         <button
                                             className={classes.overlayBtn}
@@ -218,7 +224,7 @@ export default function MovieShowings() {
                 padding: '40px 0'
             }}>
                 <div className={classes.searchBarRow}>
-                    <div className={classes.sectionTitle}>Tìm kiếm phim trên Phú Lê Movie</div>
+                    <div className={classes.sectionTitle}>Tìm kiếm phim trên MoMO Cinema</div>
                     <select className={classes.filterSelect} value={selectedGenre} onChange={handleGenreChange}>
                         <option value="">Thể loại</option>
                         {genreList.map((g) => (
@@ -271,8 +277,8 @@ export default function MovieShowings() {
                                     <div className={classes.detailItem}>
                                         <span className={classes.detailIcon}>🌏</span>
                                         <span className={classes.detailText}>
-                                            {Array.isArray(movie.nhaSanXuat) 
-                                                ? movie.nhaSanXuat.join(', ') 
+                                            {Array.isArray(movie.nhaSanXuat)
+                                                ? movie.nhaSanXuat.join(', ')
                                                 : (movie.nhaSanXuat || 'Khác')}
                                         </span>
                                     </div>
@@ -281,6 +287,9 @@ export default function MovieShowings() {
                                         <span className={classes.detailText}>Phụ đề</span>
                                     </div>
                                 </div>
+                            </div>
+                            <div className={classes.releaseInfo}>
+                                Khởi chiếu: {movie.ngayKhoiChieu ? new Date(movie.ngayKhoiChieu).toLocaleDateString('vi-VN') : 'Đang cập nhật'}
                             </div>
                             <div className={classes.topMovieTitle}>{movie.tenPhim}</div>
                             <div className={classes.overlayButtons}>

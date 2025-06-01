@@ -150,6 +150,8 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         cursor: 'pointer',
         transition: 'transform 0.3s',
+        height: 480, // Thêm chiều cao cố định
+        justifyContent: 'flex-start', // Đảm bảo các phần xếp từ trên xuống
         '&:hover': {
             // transform: 'translateY(-8px) scale(1.04)',
         },
@@ -247,26 +249,40 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'column',
         gap: 16,
         alignItems: 'center',
-        marginBottom: 12, // Space between button and logo
+        marginTop: 'auto', // Đẩy nút xuống cuối card
+        marginBottom: 12,
     },
     overlayBtn: {
-        background: 'transparent',
-        color: '#FFD600',
-        border: '2px solid #FFD600',
-        borderRadius: 4,
-        padding: '8px 32px', // Match button size from the image
-        fontWeight: 700,
-        fontSize: 16,
+        background: '#ffe924', // vàng mặc định
+        color: '#222',
+        border: 'none',
+        borderRadius: 8,
+        fontWeight: 900,
+        minWidth: 160,      // hoặc width: 100% để full chiều ngang card
+        height: 45,         // hoặc padding: '18px 0' để tự động theo text
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '0 auto',   // căn giữa theo chiều ngang nếu không dùng width: 100%
         cursor: 'pointer',
-        transition: 'background 0.2s, color 0.2s',
+        transition: 'background 0.4s cubic-bezier(0.4,0,0.2,1), color 0.2s',
         outline: 'none',
         boxShadow: 'none',
-        textTransform: 'uppercase', // Match the uppercase style in the image
-        letterSpacing: 0,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
         fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+        backgroundImage: 'linear-gradient(90deg, #fa5238 0%, #e60000 100%)',
+        backgroundSize: '0% 100%',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'left',
+        position: 'relative',
+        overflow: 'hidden',
         '&:hover': {
-            background: '#FFD600',
-            color: '#222',
+            color: '#fff',
+            backgroundColor: '#ffe924', // fallback
+            backgroundSize: '100% 100%',
+            backgroundPosition: 'left',
+            transition: 'background-size 0.4s cubic-bezier(0.4,0,0.2,1), color 0.2s',
         },
     },
     overlayLogo: {
@@ -282,7 +298,7 @@ const useStyles = makeStyles((theme) => ({
     topMovieIndex: {
         position: 'absolute',
         left: 0,
-        bottom: 90,
+        bottom: 160,
         color: '#fff',
         fontWeight: 700,
         fontStyle: 'italic',
@@ -296,19 +312,26 @@ const useStyles = makeStyles((theme) => ({
         borderRadius: 0,
     },
     topMovieTitle: {
-        fontSize: 18,
-        fontWeight: 700,
-        color: '#222',
+        fontSize: 16,
+        fontWeight: 800,
+        color: '#000',
         textAlign: 'center',
-        margin: '4px 0 0 0',
-        padding: '2px 0',
+        margin: '8px 0 0 0',
+        padding: '6px 0 0 0',
         whiteSpace: 'normal',
-        overflow: 'visible',
-        textOverflow: 'unset',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
         lineHeight: 1.3,
-        minHeight: 0,
-        background: 'transparent',
+        minHeight: 28,
+        maxHeight: 56, // Cho phép tối đa 2-3 dòng
+        borderRadius: 0,
         boxShadow: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+        letterSpacing: 0.5,
+
     },
     topMovieDivider: {
         width: '100%',
@@ -591,6 +614,36 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: '100%',
         height: 'auto',
         borderRadius: 8,
+    },
+    releaseInfo: {
+        fontSize: 14,
+        color: '#5a4b7e',
+        fontWeight: 600,
+        textAlign: 'center',
+        marginTop: 8,
+        marginBottom: 0,
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+    },
+    topMovieInfo: {
+        color: '#edeaf7',
+        fontSize: 14,
+        fontWeight: 500,
+        textAlign: 'center',
+        margin: '12px 0 0 0',
+        letterSpacing: 0.2,
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+    },
+    topMovieTitleNowShowing: {
+        fontSize: 16,
+        fontWeight: 900,
+        color: '#edeaf7',
+        textAlign: 'center',
+        margin: '4px 0 12px 0',
+        padding: 0,
+        lineHeight: 1.3,
+        fontFamily: "'Montserrat', 'Quicksand', sans-serif",
+        letterSpacing: 0.5,
+
     },
 }));
 

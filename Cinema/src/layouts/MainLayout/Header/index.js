@@ -12,8 +12,6 @@ const headMenu = [
     { nameLink: "Trang chủ", id: "trangchu" },
     { nameLink: "Rạp chiếu", path: "/theaters" },
     { nameLink: "Phim chiếu", path: "/phim-dang-chieu" },
-    { nameLink: "Review phim", id: "reviewphim" },
-
 ];
 
 export default function Header() {
@@ -115,7 +113,7 @@ export default function Header() {
                     }}
                 >
                     <img
-                        src="https://i.vietgiaitri.com/2019/4/22/doanh-nhan-phu-le-su-that-sau-khi-chuon-chuon-thoat-xac-nghi-van-6546bc.jpg"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTddDYBAD6frCdzeo_TifC6zQdowcnIiblwjA&s"
                         alt="logo"
                         className="logo-img"
                     />

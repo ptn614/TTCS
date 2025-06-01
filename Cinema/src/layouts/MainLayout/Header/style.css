@@ -13,6 +13,7 @@
     color: #000;
     padding: 0 48px;
     height: 64px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Logo styling */
@@ -26,8 +27,7 @@
     height: 40px;
     border-radius: 8px;
     margin-right: 16px;
-    margin-top: 0;
-    transition: transform 0.3s;
+    transition: transform 0.3s ease;
 }
 
 .header .logo-img:hover {
@@ -48,24 +48,32 @@
     justify-content: center;
     flex-grow: 1;
     gap: 24px;
-    font-weight: 500;
-    font-size: 16px;
+    font-family: "'Montserrat', sans-serif";
 }
 
 .menu-item {
     cursor: pointer;
     text-transform: uppercase;
-    color: #000;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 6px;
-    transition: background 0.3s, color 0.3s;
+    color: #222;
+    font-weight: 900;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #fff;
+    background-image: linear-gradient(90deg, #fa5238 0%, #e60000 100%);
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    background-position: left;
+    transition: background-size 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
+    letter-spacing: 1px;
+    outline: none;
+    box-shadow: none;
 }
 
 .menu-item:hover {
-    background: #d3d3d3;
-    color: #000;
+    color: #fff;
+    background-size: 100% 100%;
+    background-position: left;
 }
 
 /* Account menu styling */
@@ -74,22 +82,30 @@
 }
 
 .account-toggle {
-    background: none;
+    background: #fff;
     border: none;
-    color: #000;
+    color: #222;
     font-size: 16px;
     cursor: pointer;
-    padding: 6px 14px;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
+    padding: 8px 16px;
+    font-family: "'Montserrat', sans-serif";
+    font-weight: 900;
     text-transform: uppercase;
-    border-radius: 6px;
-    transition: background 0.3s, color 0.3s;
+    border-radius: 8px;
+    background-image: linear-gradient(90deg, #fa5238 0%, #e60000 100%);
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    background-position: left;
+    transition: background-size 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
+    outline: none;
+    box-shadow: none;
+    letter-spacing: 1px;
 }
 
 .account-toggle:hover {
-    background: #d3d3d3;
-    color: #000;
+    color: #fff;
+    background-size: 100% 100%;
+    background-position: left;
 }
 
 .account-toggle-icon {
@@ -109,19 +125,23 @@
     right: 0;
     background: #fff;
     border: 1px solid #d3d3d3;
-    border-radius: 6px;
+    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    min-width: 150px;
+    min-width: 160px;
+    overflow: hidden;
 }
 
 .account-item {
     padding: 10px 20px;
-    color: #fff;
     cursor: pointer;
     border-bottom: 1px solid #d3d3d3;
     transition: background 0.3s, color 0.3s;
     text-align: center;
+    font-family: "'Montserrat', sans-serif";
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
 }
 
 .account-item:last-child {
@@ -130,26 +150,27 @@
 
 /* Button styles for account items */
 .account-item.btn-login {
-    background: #FF4D4D;
+    background: #fa5238;
     color: #fff;
+    background-image: linear-gradient(90deg, #fa5238 0%, #e60000 100%);
+    background-size: 100% 100%;
 }
 
 .account-item.btn-login:hover {
-    background: #E60000;
-    color: #fff;
+    background: #e60000;
+    background-image: none;
 }
-
 
 .account-item.btn-register {
     background: #fff;
-    color: #333333;
-    border: #FF4D4D;
+    color: #fa5238;
+    border: 1px solid #fa5238;
 }
 
 .account-item.btn-register:hover {
-    background: #FFE6E6;
-    color: #E60000;
-    border: #E60000;
+    background: #ffe6e6;
+    color: #e60000;
+    border: 1px solid #e60000;
 }
 
 .account-item.btn-profile {
@@ -159,7 +180,6 @@
 
 .account-item.btn-profile:hover {
     background: #23272b;
-    color: #fff;
 }
 
 .account-item.btn-logout {
@@ -169,7 +189,6 @@
 
 .account-item.btn-logout:hover {
     background: #c82333;
-    color: #fff;
 }
 
 /* Mobile menu toggle */
@@ -177,7 +196,7 @@
     display: none;
     background: none;
     border: none;
-    color: #000;
+    color: #fa5238;
     font-size: 24px;
     cursor: pointer;
     position: absolute;
@@ -190,7 +209,7 @@
     content: "\f0c9";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
-    color: #b20710;
+    color: #fa5238;
 }
 
 /* Responsive design */
@@ -207,6 +226,12 @@
 
     .header .logo-img {
         height: 40px;
+    }
+
+    .menu-item,
+    .account-toggle {
+        padding: 6px 12px;
+        font-size: 15px;
     }
 }
 
@@ -234,20 +259,51 @@
         top: 70px;
         left: 0;
         border-top: 1px solid #d3d3d3;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .menu.show {
         display: flex;
     }
 
+    .menu-item {
+        padding: 10px;
+        background-size: 100% 100%;
+        /* Full gradient on mobile for visibility */
+        color: #fff;
+        background-image: linear-gradient(90deg, #fa5238 0%, #e60000 100%);
+    }
+
+    .menu-item:hover {
+        background-size: 100% 100%;
+        color: #fff;
+    }
+
+    .account-toggle {
+        padding: 10px;
+        background-size: 100% 100%;
+        /* Full gradient on mobile */
+        color: #fff;
+        background-image: linear-gradient(90deg, #fa5238 0%, #e60000 100%);
+    }
+
+    .account-toggle:hover {
+        background-size: 100% 100%;
+        color: #fff;
+    }
+
     .account-dropdown {
         width: 100%;
         right: 0;
+        border-radius: 0;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .account-item {
         width: 100%;
         text-align: center;
+        padding: 12px;
     }
 
     .header .logo {

@@ -171,27 +171,43 @@
   margin-top: 32px;
 }
 
+/* Thay thế toàn bộ .detail-btn cũ bằng đoạn dưới đây */
 .detail-btn {
-  background-color: #2d6cdf;
-  color: #fff;
+  background: #ffe924;
+  color: #222;
   border: none;
-  padding: 12px 32px;
   border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-weight: 900;
+  min-width: 160px;
+  height: 45px;
+  margin: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
+  outline: none;
+  box-shadow: none;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  font-family: 'Montserrat', 'Quicksand', sans-serif;
+  background-image: linear-gradient(90deg, #5b3fa7 0%, #3973d6 100%);
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  background-position: left;
+  position: relative;
+  overflow: hidden;
+  padding: 0 32px;
 }
 
 .detail-btn:hover {
-  background-color: #1a5ac7;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 108, 223, 0.3);
+  color: #fff;
+  background-color: #ffe924;
+  /* fallback */
+  background-image: linear-gradient(90deg, #5b3fa7 0%, #3973d6 100%);
+  background-size: 100% 100%;
+  background-position: left;
+  transition: background-size 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
 }
 
 .detail-btn:active {
