@@ -21,11 +21,12 @@ export default function MovieShowings() {
     const [page, setPage] = useState(1);
     const [recommendMovies, setRecommendMovies] = useState([]);
     const totalPages = movieList ? Math.ceil((movieList.length || 0) / MOVIES_PER_PAGE) : 1;
-    const [topStart, setTopStart] = useState(0);
+    const [recommendStart, setRecommendStart] = useState(0);
     const [selectedGenre, setSelectedGenre] = useState('');
     const [selectedCountry, setSelectedCountry] = useState('');
     const [searchKeyword, setSearchKeyword] = useState('');
     const [dsTheLoai, setDsTheLoai] = useState([]);
+    const [loadingRecommend, setLoadingRecommend] = useState(false);
 
     useEffect(() => {
         dispatch(getMovieList());
@@ -37,9 +38,47 @@ export default function MovieShowings() {
             .catch(() => setDsTheLoai([]));
     }, []);
 
-    const topMoviesToShow = (movieList || []).slice(topStart, topStart + 5);
-    const canSlideLeft = topStart > 0;
-    const canSlideRight = (movieList || []).length > topStart + 5;
+    // Load AI recommendations
+    useEffect(() => {
+        const loadRecommendations = async () => {
+            const userInfo = localStorage.getItem('UserLogin');
+            if (userInfo) {
+                try {
+                    const user = JSON.parse(userInfo);
+                    const taiKhoan = user.taiKhoan;
+                    
+                    setLoadingRecommend(true);
+                    const response = await axios.get("http://localhost:4000/api/AI/GoiyPhim", {
+                        params: { taiKhoan: taiKhoan }
+                    });
+                    
+                    if (response.data && Array.isArray(response.data)) {
+                        setRecommendMovies(response.data);
+                    } else {
+                        // Fallback to random movies if no recommendations
+                        setRecommendMovies(getRandomMovies(movieList, 6) || []);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tải gợi ý phim:', error);
+                    // Fallback to random movies on error
+                    setRecommendMovies(getRandomMovies(movieList, 6) || []);
+                } finally {
+                    setLoadingRecommend(false);
+                }
+            } else {
+                // User not logged in, show random movies
+                setRecommendMovies(getRandomMovies(movieList, 6) || []);
+            }
+        };
+
+        if (movieList && movieList.length > 0) {
+            loadRecommendations();
+        }
+    }, [movieList]);
+
+    const recommendMoviesToShow = recommendMovies.slice(recommendStart, recommendStart + 5);
+    const canSlideLeftRecommend = recommendStart > 0;
+    const canSlideRightRecommend = recommendMovies.length > recommendStart + 5;
 
     const showRecommend = filteredMovies.length === (movieList || []).length && !searchKeyword && !selectedGenre && !selectedCountry;
     const moviesToShow = filteredMovies.slice((page - 1) * MOVIES_PER_PAGE, page * MOVIES_PER_PAGE);
@@ -122,93 +161,111 @@ export default function MovieShowings() {
                 </div>
             </div>
 
-            {/* Section phim đang chiếu nổi bật */}
+            {/* Section gợi ý phim dành cho bạn */}
             <div className={classes.topMoviesSection}>
                 <div className={classes.topMoviesOverlay}></div>
                 <div className={classes.topMoviesContent}>
-                    <div className={classes.topMoviesTitle}>Phim đang chiếu</div>
-                    <div style={{ position: 'relative', width: '100%' }}>
-                        {canSlideLeft && (
-                            <button
-                                className={classes.topMoviesSliderBtn + ' ' + classes.topMoviesSliderBtnLeft}
-                                onClick={() => setTopStart(topStart - 1)}
-                                aria-label="Xem phim trước"
-                            >
-                                ←
-                            </button>
-                        )}
-                        {canSlideRight && (
-                            <button
-                                className={classes.topMoviesSliderBtn}
-                                onClick={() => setTopStart(topStart + 1)}
-                                aria-label="Xem phim tiếp"
-                            >
-                                →
-                            </button>
-                        )}
-                        <div className={classes.topMoviesRow}>
-                            {topMoviesToShow.map((movie, idx) => (
-                                <div
-                                    key={movie.maPhim}
-                                    className={classes.topMovieCard}
-                                    onClick={() => window.location.href = `/detail/${movie.maPhim}`}
-                                >
-                                    <img
-                                        src={movie.hinhAnh}
-                                        alt={movie.tenPhim}
-                                        className={classes.topMovieImage}
-                                    />
-                                    <div className={classes.topMoviePosterOverlay}></div>
-                                    <div className={classes.topMovieOverlay}>
-                                        <div className={classes.overlayTitle}>{movie.tenPhim} (T16)</div>
-                                        <div className={classes.overlayDetails}>
-                                            <div className={classes.detailItem}>
-                                                <span className={classes.detailIcon}>🎭</span>
-                                                <span className={classes.detailText}>{getTenTheLoai(movie.maTheLoaiPhim)}</span>
-                                            </div>
-                                            <div className={classes.detailItem}>
-                                                <span className={classes.detailIcon}>⏳</span>
-                                                <span className={classes.detailText}>120'</span>
-                                            </div>
-                                            <div className={classes.detailItem}>
-                                                <span className={classes.detailIcon}>🌏</span>
-                                                <span className={classes.detailText}>
-                                                    {Array.isArray(movie.nhaSanXuat)
-                                                        ? movie.nhaSanXuat.join(', ')
-                                                        : (movie.nhaSanXuat || 'Khác')}
-                                                </span>
-                                            </div>
-                                            <div className={classes.detailItem}>
-                                                <span className={classes.detailIcon}>💬</span>
-                                                <span className={classes.detailText}>Phụ đề</span>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div className={classes.topMovieIndex}>{topStart + idx + 1}</div>
-                                    <div>
-                                        <div className={classes.topMovieInfo}>
-                                            Khởi chiếu: {movie.ngayKhoiChieu ? new Date(movie.ngayKhoiChieu).toLocaleDateString('vi-VN') : 'Đang cập nhật'}
-                                        </div>
-                                        <div className={classes.topMovieTitleNowShowing}>
-                                            {movie.tenPhim}
-                                        </div>
-                                    </div>
-                                    <div className={classes.overlayButtons}>
-                                        <button
-                                            className={classes.overlayBtn}
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                window.location.href = `/detail/${movie.maPhim}`;
-                                            }}
-                                        >
-                                            Đặt vé
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    <div className={classes.topMoviesTitle}>
+                        {loadingRecommend ? "Đang tải gợi ý..." : "Gợi ý phim dành cho bạn"}
                     </div>
+                    {loadingRecommend ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#fff' }}>
+                            <div>Đang phân tích sở thích của bạn...</div>
+                        </div>
+                    ) : (
+                        <div style={{ position: 'relative', width: '100%' }}>
+                            {canSlideLeftRecommend && (
+                                <button
+                                    className={classes.topMoviesSliderBtn + ' ' + classes.topMoviesSliderBtnLeft}
+                                    onClick={() => setRecommendStart(recommendStart - 1)}
+                                    aria-label="Xem phim trước"
+                                >
+                                    ←
+                                </button>
+                            )}
+                            {canSlideRightRecommend && (
+                                <button
+                                    className={classes.topMoviesSliderBtn}
+                                    onClick={() => setRecommendStart(recommendStart + 1)}
+                                    aria-label="Xem phim tiếp"
+                                >
+                                    →
+                                </button>
+                            )}
+                            <div className={classes.topMoviesRow}>
+                                {recommendMoviesToShow.map((movie, idx) => (
+                                    <div
+                                        key={movie.maPhim}
+                                        className={classes.topMovieCard}
+                                        onClick={() => window.location.href = `/detail/${movie.maPhim}`}
+                                    >
+                                        <img
+                                            src={movie.hinhAnh}
+                                            alt={movie.tenPhim}
+                                            className={classes.topMovieImage}
+                                        />
+                                        <div className={classes.topMoviePosterOverlay}></div>
+                                        <div className={classes.topMovieOverlay}>
+                                            <div className={classes.overlayTitle}>{movie.tenPhim} (T16)</div>
+                                            <div className={classes.overlayDetails}>
+                                                <div className={classes.detailItem}>
+                                                    <span className={classes.detailIcon}>🎭</span>
+                                                    <span className={classes.detailText}>{getTenTheLoai(movie.maTheLoaiPhim)}</span>
+                                                </div>
+                                                <div className={classes.detailItem}>
+                                                    <span className={classes.detailIcon}>⏳</span>
+                                                    <span className={classes.detailText}>{movie.thoiLuong || 120}'</span>
+                                                </div>
+                                                <div className={classes.detailItem}>
+                                                    <span className={classes.detailIcon}>🌏</span>
+                                                    <span className={classes.detailText}>
+                                                        {Array.isArray(movie.nhaSanXuat)
+                                                            ? movie.nhaSanXuat.join(', ')
+                                                            : (movie.nhaSanXuat || 'Khác')}
+                                                    </span>
+                                                </div>
+                                                <div className={classes.detailItem}>
+                                                    <span className={classes.detailIcon}>💬</span>
+                                                    <span className={classes.detailText}>Phụ đề</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={classes.topMovieIndex}>
+                                            <span style={{ 
+                                                backgroundColor: '#e50914', 
+                                                color: 'white', 
+                                                padding: '2px 6px', 
+                                                borderRadius: '4px', 
+                                                fontSize: '12px',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                AI
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div className={classes.topMovieInfo}>
+                                                Khởi chiếu: {movie.ngayKhoiChieu ? new Date(movie.ngayKhoiChieu).toLocaleDateString('vi-VN') : 'Đang cập nhật'}
+                                            </div>
+                                            <div className={classes.topMovieTitleNowShowing}>
+                                                {movie.tenPhim}
+                                            </div>
+                                        </div>
+                                        <div className={classes.overlayButtons}>
+                                            <button
+                                                className={classes.overlayBtn}
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    window.location.href = `/detail/${movie.maPhim}`;
+                                                }}
+                                            >
+                                                Đặt vé
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -238,8 +295,6 @@ export default function MovieShowings() {
                         {countryList.map((c) => (
                             <option key={c} value={c}>{c}</option>
                         ))}
-                        ré
-
                     </select>
                     <input
                         className={classes.searchInput}

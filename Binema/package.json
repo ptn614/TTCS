@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "await": "^0.2.6",
+    "axios": "^1.9.0",
     "body-parser": "^1.20.0",
     "config": "^1.31.0",
     "cookie-parser": "^1.4.4",

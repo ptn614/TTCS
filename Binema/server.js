@@ -8,58 +8,65 @@ const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const { application } = require('express');
 var nodemailer = require('nodemailer');
-
 let $ = require('jquery');
 const request = require('request');
 const moment = require('moment');
 
-
-
-app.use(cors())
+app.use(cors());
 app.use(bodyParser.json({ limit: '5000mb' }));
 app.use(bodyParser.urlencoded({ limit: '5000mb' }));
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.options('*', function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.sendStatus(204);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.sendStatus(204);
 });
 
 // Set up Global configuration access
 dotenv.config();
 
-// route mặc định
-
-
-// chỉnh port
-app.listen(process.env.PORT || 4000, function () {
-    console.log('Node app is running on port 4000');
-});
-module.exports = app;
+// ✅ Kết nối database
 var dbConn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '123456',
-    database: 'nodejsapi'
+  host: 'localhost',
+  user: 'root',
+  password: '123456',
+  database: 'nodejsapi'
 });
-dbConn.connect();
+dbConn.connect((err) => {
+  if (err) {
+    console.error('❌ Kết nối DB thất bại:', err);
+  } else {
+    console.log('✅ Kết nối DB thành công');
+  }
+});
 
+// ✅ Import route AI & truyền dbConn
+const aiRoute = require('./routes/aiRoute')(dbConn);
+app.use('/api/AI', aiRoute);
+
+// ✅ Cuối cùng: chạy server
+app.listen(process.env.PORT || 4000, function () {
+  console.log('Node app is running on port 4000');
+});
+
+module.exports = app;
+
+// ✅ Hàm xác thực token (nếu có dùng)
 const validateToken = (req, res) => {
-    const tokenHeaderKey = process.env.TOKEN_HEADER_KEY;
-    const jwtSecretKey = process.env.JWT_SECRET_KEY;
-    try {
-        const token = req.headers.authorization.split(" ")[1];
-        const verified = jwt.verify(token, jwtSecretKey);
-        if (!verified)
-            return res.status(401).send(error);
-    } catch (error) {
-        console.log(error);
-        return res.status(401).send(error);
-    }
-}
+  const tokenHeaderKey = process.env.TOKEN_HEADER_KEY;
+  const jwtSecretKey = process.env.JWT_SECRET_KEY;
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const verified = jwt.verify(token, jwtSecretKey);
+    if (!verified)
+      return res.status(401).send(error);
+  } catch (error) {
+    console.log(error);
+    return res.status(401).send(error);
+  }
+};
 
 // Danh sach Banner
 
