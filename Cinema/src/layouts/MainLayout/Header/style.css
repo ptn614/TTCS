@@ -76,6 +76,20 @@
     background-position: left;
 }
 
+/* Active menu item styling */
+.menu-item.active {
+    color: #fff;
+    background-size: 100% 100%;
+    background-position: left;
+    font-weight: 900;
+}
+
+.menu-item.active:hover {
+    color: #fff;
+    background-size: 100% 100%;
+    background-position: left;
+}
+
 /* Account menu styling */
 .account-menu {
     position: relative;
@@ -277,6 +291,14 @@
     .menu-item:hover {
         background-size: 100% 100%;
         color: #fff;
+    }
+
+    /* Active menu item on mobile */
+    .menu-item.active {
+        background-size: 100% 100%;
+        color: #fff;
+        font-weight: 900;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .account-toggle {

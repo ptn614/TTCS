@@ -101,6 +101,18 @@ export default function Header() {
         setOpenAccountMenu(!openAccountMenu);
     };
 
+    // Function to check if menu item is active
+    const isActiveMenuItem = (id, path) => {
+        if (path) {
+            return location.pathname === path;
+        }
+        // For homepage sections
+        if (id === "trangchu") {
+            return location.pathname === "/";
+        }
+        return false;
+    };
+
     return (
         <nav className="header">
             <div className="container">
@@ -122,7 +134,7 @@ export default function Header() {
                     {headMenu.map((link) => (
                         <div
                             key={link.id || link.path}
-                            className="menu-item"
+                            className={`menu-item ${isActiveMenuItem(link.id, link.path) ? 'active' : ''}`}
                             onClick={() => handleClickLink(link.id, link.path)}
                         >
                             {link.nameLink}
