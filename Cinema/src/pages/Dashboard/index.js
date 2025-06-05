@@ -52,7 +52,7 @@ export default function MoviesManagement() {
       </div>
 
       <div style={{ background: '#fff', padding: 24, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-        <h3 style={{ marginBottom: 16 }}>🎬 Top phim được xem nhiều nhất</h3>
+        <h3 style={{ marginBottom: 16 }}>🎬 Top phim được đặt nhiều nhất</h3>
         {phim.length > 0 ? (
           <BarChart
             xAxis={[{

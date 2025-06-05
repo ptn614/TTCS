@@ -175,14 +175,21 @@ export default function PayMent() {
     }, [location.search, dispatch]);
 
     const handleBookTicket = () => {
-        console.log("Danh Sach Ve", danhSachVe)
-        usersApi.creatPaymentUrl(amount, maLichChieu, danhSachVe, taiKhoanNguoiDung).then(
-            result => {
-                console.log(result.data)
-                window.location.href = result.data;
-            }
-        ).catch();
-    };
+    console.log("Danh Sach Ve", danhSachVe);
+
+    // ✅ Sửa ở đây: stringify từng vé trong mảng
+    const danhSachVeStringified = danhSachVe.map(ve => JSON.stringify(ve));
+
+    usersApi.creatPaymentUrl(amount, maLichChieu, danhSachVeStringified, taiKhoanNguoiDung).then(
+        result => {
+            console.log(result.data);
+            window.location.href = result.data;
+        }
+    ).catch((err) => {
+        console.error('Lỗi khi tạo URL thanh toán:', err);
+    });
+};
+
     const onFocus = (e) => {
         setDataFocus({ ...dataFocus, [e.target.name]: true });
     };

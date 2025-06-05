@@ -412,7 +412,7 @@ export default function Index() {
                                         <td>{item.loaiGhe}</td>
                                         <td>{item.giaVe}</td>
                                         <td>
-                                            {item.daThanhToan ? (
+                                            {item.status ? (
                                                 <span className="badge bg-success">Đã thanh toán</span>
                                             ) : (
                                                 <span className="badge bg-warning">Chưa thanh toán</span>

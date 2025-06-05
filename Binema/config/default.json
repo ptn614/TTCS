@@ -1,7 +1,7 @@
 {
-  "vnp_TmnCode":"8LEQ9RXM",
-  "vnp_HashSecret":"PWTVPXDRCHITWPEYQASMOLNVGZCBAZGU",
-  "vnp_Url":"https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
-  "vnp_Api":"https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
+  "vnp_TmnCode": "E8I523EP",
+  "vnp_HashSecret": "GML6ZCK12380HYE968ENSW4TNYT838Y5",
+  "vnp_Url": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
+  "vnp_Api": "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
   "vnp_ReturnUrl": "http://localhost:3000/datve/"
 }

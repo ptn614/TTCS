@@ -4,27 +4,29 @@ const axios = require('axios');
 module.exports = function (dbConn) {
   const router = express.Router();
 
-  // API gợi ý phim bằng AI Flask
+  // API gọi gợi ý phim từ Flask
   router.get('/GoiyPhim', async (req, res) => {
     const { taiKhoan } = req.query;
 
+    // Kiểm tra nếu không có tài khoản
     if (!taiKhoan) {
       return res.status(400).json({ error: 'Thiếu tài khoản' });
     }
 
     try {
-      // Gọi Flask AI server
+      // Gửi yêu cầu GET tới Flask server chạy ở cổng 5001
       const response = await axios.get('http://localhost:5001/recommend', {
         params: { user_id: taiKhoan }
       });
 
       const movieIds = response.data;
 
+      // Nếu không có kết quả gợi ý, trả mảng rỗng
       if (!Array.isArray(movieIds) || movieIds.length === 0) {
         return res.json([]);
       }
 
-      // Truy vấn phim từ DB theo danh sách AI trả về
+      // Truy vấn phim trong CSDL tương ứng với danh sách được AI gợi ý
       dbConn.query(
         'SELECT * FROM phiminsert WHERE maPhim IN (?)',
         [movieIds],
@@ -34,7 +36,7 @@ module.exports = function (dbConn) {
             return res.status(500).json({ error: 'Lỗi DB' });
           }
 
-          // Chuyển ảnh BLOB sang base64
+          // Chuyển ảnh từ BLOB sang base64 để frontend hiển thị được
           const converted = results.map((row) => {
             let imageBase64 = null;
             if (row.hinhAnh) {
@@ -47,6 +49,7 @@ module.exports = function (dbConn) {
             };
           });
 
+          // Trả về danh sách phim chi tiết cho frontend
           res.json(converted);
         }
       );

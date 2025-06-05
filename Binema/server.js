@@ -161,7 +161,11 @@ app.get('/api/create_payment_url', function (req, res, next) {
 
     vnp_Params = sortObject(vnp_Params);
 
-    let signData = querystring.stringify(vnp_Params, { encode: false });
+    let signData = Object.keys(vnp_Params)
+    .sort()
+    .map(key => `${key}=${vnp_Params[key]}`)
+    .join('&');
+
     let crypto = require("crypto");
     let hmac = crypto.createHmac("sha512", secretKey);
     let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
@@ -265,11 +269,23 @@ app.get('/api/ThongKe/getMonth', function (req, res) {
 });
 
 app.get('/api/ThongKe/getPhim', function (req, res) {
-    dbConn.query('SELECT tenPhim, COUNT(*) AS soLuong from nodejsapi.thongke GROUP BY tenPhim', [], function (error, results, fields) {
-        if (error) throw error;
+    const query = `
+        SELECT tenPhim, COUNT(*) AS soLuong 
+        FROM nodejsapi.thongke 
+        GROUP BY tenPhim 
+        ORDER BY soLuong DESC 
+        LIMIT 5
+    `;
+    
+    dbConn.query(query, [], function (error, results, fields) {
+        if (error) {
+            console.error('Lỗi khi truy vấn top phim:', error);
+            return res.status(500).send('Lỗi máy chủ');
+        }
         return res.send(results);
     });
 });
+
 
 app.post('/api/QuanLyNguoiDung/ThongTinTaiKhoan', function (req, res) {
     validateToken(req, res);
@@ -344,7 +360,7 @@ app.get('/api/QuanLyRap/LayThongTinTheLoaiPhim', function (req, res) {
 });
 
 app.post('/api/QuanLyRap/AddTheLoaiPhim', function (req, res) {
-    dbConn.query("INSERT INTO nodejsapi.theloaiphim (name) VALUES(?)", [req.body.tenTheLoai], function (error, results, fields) {
+    dbConn.query("INSERT INTO nodejsapi.theloaiphim (tenTheLoai) VALUES(?)", [req.body.tenTheLoai], function (error, results, fields) {
         if (error) throw error;
         return res.send(results);
     });
@@ -367,170 +383,243 @@ app.post('/api/QuanLyRap/DeleteTheLoaiPhim', function (req, res) {
 
 
 app.get('/api/QuanLyRap/LayThongTinLichChieuHeThongRap', function (req, res) {
-    const final = [];
-    dbConn.query('SELECT * FROM hethongrap', [], async (error, results, fields) => {
-        if (error) throw error;
-        for (const result of results) {
-            let lstCumRap = [];
-            lstCumRap = await new Promise((resolve, reject) => {
-                dbConn.query('SELECT * FROM hethongrap JOIN hethongrapvacumrap ON hethongrap.hid = hethongrapvacumrap.hethongrap JOIN cumrap ON cumrap.cid = hethongrapvacumrap.cumrap WHERE hethongrap.hid = ?', [result.hid], async (error, results0, fields) => {
+  const final = [];
+  dbConn.query('SELECT * FROM hethongrap', [], async (error, results, fields) => {
+    if (error) throw error;
+    for (const result of results) {
+      let lstCumRap = [];
+      lstCumRap = await new Promise((resolve, reject) => {
+        dbConn.query(
+          'SELECT * FROM hethongrap JOIN hethongrapvacumrap ON hethongrap.hid = hethongrapvacumrap.hethongrap JOIN cumrap ON cumrap.cid = hethongrapvacumrap.cumrap WHERE hethongrap.hid = ?',
+          [result.hid],
+          async (error, results0, fields) => {
+            if (error) throw error;
+            for (const result0 of results0) {
+              let danhSachPhim = [];
+              danhSachPhim = await new Promise((resolve, reject) => {
+                dbConn.query(
+                  'SELECT * FROM phiminsert JOIN hethongrapvaphim ON phiminsert.maPhim = hethongrapvaphim.maPhim JOIN hethongrap ON hethongrap.hid = hethongrapvaphim.maHeThongRap JOIN phiminsertvalichchieuinsert ON phiminsert.maPhim = phiminsertvalichchieuinsert.phiminsert JOIN cumrapvalichchieuinsert ON phiminsertvalichchieuinsert.lichchieuinsert = cumrapvalichchieuinsert.lichchieuinsert WHERE hethongrap.hid = ? AND cumrapvalichchieuinsert.cumrap = ?',
+                  [result0.hid, result0.cid],
+                  async (error, results1, fields) => {
                     if (error) throw error;
-                    for (const result0 of results0) {
-                        let danhSachPhim = [];
-                        danhSachPhim = await new Promise((resolve, reject) => {
-                            dbConn.query('SELECT * FROM phiminsert JOIN hethongrapvaphim ON phiminsert.maPhim = hethongrapvaphim.maPhim JOIN hethongrap ON hethongrap.hid = hethongrapvaphim.maHeThongRap JOIN phiminsertvalichchieuinsert ON phiminsert.maPhim = phiminsertvalichchieuinsert.phiminsert JOIN cumrapvalichchieuinsert ON phiminsertvalichchieuinsert.lichchieuinsert = cumrapvalichchieuinsert.lichchieuinsert WHERE hethongrap.hid = ? AND cumrapvalichchieuinsert.cumrap = ?', [result0.hid, result0.cid], async (error, results1, fields) => {
-                                if (error) throw error;
-                                for (const result1 of results1) {
-                                    let lstLichChieuTheoPhim = []
-                                    lstLichChieuTheoPhim = await new Promise((resolve, reject) => {
-                                        dbConn.query('SELECT * FROM lichchieuinsert JOIN phiminsertvalichchieuinsert ON lichchieuinsert.maLichChieu = phiminsertvalichchieuinsert.lichchieuinsert JOIN phiminsert ON phiminsert.maPhim = phiminsertvalichchieuinsert.phiminsert WHERE phiminsertvalichchieuinsert.phiminsert = ?', [result1.maPhim], async (error, results2, fields) => {
-                                            if (error) throw error;
-                                            for (const result2 of results2) {
-                                                lstLichChieuTheoPhim.push({
-                                                    "maLichChieu": result2.maLichChieu,
-                                                    "maRap": result2.maRap,
-                                                    "tenRap": result2.tenRap,
-                                                    "ngayChieuGioChieu": result2.ngayChieuGioChieu,
-                                                    "giaVe": result2.giaVe,
-                                                })
-                                            }
-                                            resolve(lstLichChieuTheoPhim);
-                                        });
-                                    })
-                                    const phim = {
-                                        "lstLichChieuTheoPhim": lstLichChieuTheoPhim,
-                                        "maPhim": result1.maPhim,
-                                        "tenPhim": result1.tenPhim,
-                                        "hinhAnh": result1.hinhAnh.toString()
 
-                                    }
-                                    console.log("PHIM", phim)
-                                    danhSachPhim.push(phim)
-                                }
-                                resolve(danhSachPhim);
-                            });
+                    const mapPhim = new Map();
 
-                        })
-                        let danhSachRap = [];
-                        danhSachRap = await new Promise((resolve, reject) => {
-                            dbConn.query('SELECT * FROM danhsachrap WHERE danhsachrap.maCumRap = ?', [result0.cid], async (error, results1, fields) => {
-                                if (error) throw error;
-                                for (const result1 of results1) {
-                                    const rap = {
-                                        "maRap": result1.maRap,
-                                    }
-                                    danhSachRap.push(rap)
-                                }
-                                resolve(danhSachRap);
-                            });
+                    for (const result1 of results1) {
+                      const lstLichChieuTheoPhim = await new Promise((resolve, reject) => {
+                        dbConn.query(
+                          `SELECT DISTINCT lichchieuinsert.maLichChieu, lichchieuinsert.maRap, lichchieuinsert.tenRap, lichchieuinsert.ngayChieuGioChieu, lichchieuinsert.giaVe
+                          FROM lichchieuinsert
+                          JOIN phiminsertvalichchieuinsert ON lichchieuinsert.maLichChieu = phiminsertvalichchieuinsert.lichchieuinsert
+                          JOIN cumrapvalichchieuinsert ON lichchieuinsert.maLichChieu = cumrapvalichchieuinsert.lichchieuinsert
+                          WHERE phiminsertvalichchieuinsert.phiminsert = ? AND cumrapvalichchieuinsert.cumrap = ?`,
+                          [result1.maPhim, result0.cid],
+                          async (error, results2, fields) => {
+                            if (error) throw error;
 
-                        })
-                        const cumrap = {
-                            "danhSachPhim": danhSachPhim,
-                            "danhSachRap": danhSachRap,
-                            "maCumRap": result0.maCumRap,
-                            "tenCumRap": result0.tenCumRap,
-                            "diaChi": result0.diaChi
-                        }
-                        lstCumRap.push(cumrap)
+                            const uniqueMap = new Map();
+                            for (const result2 of results2) {
+                              if (!uniqueMap.has(result2.maLichChieu)) {
+                                uniqueMap.set(result2.maLichChieu, {
+                                  maLichChieu: result2.maLichChieu,
+                                  maRap: result2.maRap,
+                                  tenRap: result2.tenRap,
+                                  ngayChieuGioChieu: result2.ngayChieuGioChieu,
+                                  giaVe: result2.giaVe,
+                                  thongTinRap: {
+                                    maCumRap: result0.maCumRap,
+                                    tenCumRap: result0.tenCumRap
+                                  }
+                                });
+                              }
+                            }
+
+                            resolve(Array.from(uniqueMap.values()));
+                          }
+                        );
+                      });
+
+                      // ✅ Gộp phim trùng, không thêm nhiều lần
+                      if (!mapPhim.has(result1.maPhim)) {
+                        mapPhim.set(result1.maPhim, {
+                          maPhim: result1.maPhim,
+                          tenPhim: result1.tenPhim,
+                          hinhAnh: result1.hinhAnh.toString(),
+                          lstLichChieuTheoPhim
+                        });
+                      } else {
+                        const existing = mapPhim.get(result1.maPhim);
+                        const merged = [...existing.lstLichChieuTheoPhim, ...lstLichChieuTheoPhim];
+                        const mergedMap = new Map(merged.map(lc => [lc.maLichChieu, lc]));
+                        existing.lstLichChieuTheoPhim = Array.from(mergedMap.values());
+                      }
                     }
-                    resolve(lstCumRap);
-                });
-            })
-            final.push({
-                "lstCumRap": lstCumRap,
-                "maHeThongRap": result.maHeThongRap,
-                "tenHeThongRap": result.tenHeThongRap,
-                "logo": result.logo,
-                "mahom": "GP09"
-            })
-        }
-        return res.send(final)
-    });
+
+                    resolve(Array.from(mapPhim.values()));
+                  }
+                );
+              });
+
+              let danhSachRap = [];
+              danhSachRap = await new Promise((resolve, reject) => {
+                dbConn.query(
+                  'SELECT * FROM danhsachrap WHERE danhsachrap.maCumRap = ?',
+                  [result0.cid],
+                  async (error, results1, fields) => {
+                    if (error) throw error;
+                    for (const result1 of results1) {
+                      const rap = {
+                        maRap: result1.maRap
+                      };
+                      danhSachRap.push(rap);
+                    }
+                    resolve(danhSachRap);
+                  }
+                );
+              });
+
+              const cumrap = {
+                danhSachPhim,
+                danhSachRap,
+                maCumRap: result0.maCumRap,
+                tenCumRap: result0.tenCumRap,
+                diaChi: result0.diaChi
+              };
+
+              lstCumRap.push(cumrap);
+            }
+            resolve(lstCumRap);
+          }
+        );
+      });
+
+      final.push({
+        lstCumRap,
+        maHeThongRap: result.maHeThongRap,
+        tenHeThongRap: result.tenHeThongRap,
+        logo: result.logo,
+        mahom: 'GP09'
+      });
+    }
+
+    return res.send(final);
+  });
 });
+
 
 app.get('/api/QuanLyRap/LayThongTinLichChieuPhim', function (req, res) {
-    dbConn.query(
-        'SELECT * FROM phiminsert JOIN hethongrapvaphim ON phiminsert.maPhim = hethongrapvaphim.maPhim JOIN hethongrap ON hethongrap.hid = hethongrapvaphim.maHeThongRap WHERE phiminsert.maPhim = ?',
-        [req.query.MaPhim],
-        async (error, results0, fields) => {
-            if (error) throw error;
-            // Kiểm tra nếu không có phim
-            if (!results0 || results0.length === 0) {
-                return res.status(404).json({ error: "Không tìm thấy phim" });
+  dbConn.query(
+    `SELECT * FROM phiminsert 
+     JOIN hethongrapvaphim ON phiminsert.maPhim = hethongrapvaphim.maPhim 
+     JOIN hethongrap ON hethongrap.hid = hethongrapvaphim.maHeThongRap 
+     WHERE phiminsert.maPhim = ?`,
+    [req.query.MaPhim],
+    async (error, results0) => {
+      if (error) throw error;
+
+      if (!results0 || results0.length === 0) {
+        return res.status(404).json({ error: "Không tìm thấy phim" });
+      }
+
+      let heThongRapChieu = [];
+
+      for (const result0 of results0) {
+        const results1 = await new Promise((resolve, reject) => {
+          dbConn.query(
+            `SELECT * FROM hethongrap 
+             JOIN hethongrapvacumrap ON hethongrap.hid = hethongrapvacumrap.hethongrap 
+             JOIN cumrap ON cumrap.cid = hethongrapvacumrap.cumrap 
+             JOIN cumrapvalichchieuinsert ON cumrap.cid = cumrapvalichchieuinsert.cumrap 
+             JOIN phiminsertvalichchieuinsert ON cumrapvalichchieuinsert.lichchieuinsert = phiminsertvalichchieuinsert.lichchieuinsert 
+             WHERE hethongrap.hid = ? AND phiminsertvalichchieuinsert.phiminsert = ?`,
+            [result0.hid, result0.maPhim],
+            (err, rows) => {
+              if (err) return reject(err);
+              resolve(rows);
             }
-            let heThongRapChieu = [];
-            for (const result0 of results0) {
-                heThongRapChieu = await new Promise((resolve, reject) => {
-                    dbConn.query(
-                        'SELECT * FROM hethongrap JOIN hethongrapvacumrap ON hethongrap.hid = hethongrapvacumrap.hethongrap JOIN cumrap ON cumrap.cid = hethongrapvacumrap.cumrap JOIN cumrapvalichchieuinsert ON cumrap.cid = cumrapvalichchieuinsert.cumrap JOIN phiminsertvalichchieuinsert ON cumrapvalichchieuinsert.lichchieuinsert = phiminsertvalichchieuinsert.lichchieuinsert WHERE hethongrap.hid = ? AND phiminsertvalichchieuinsert.phiminsert = ?',
-                        [result0.hid, result0.maPhim],
-                        async (error, results1, fields) => {
-                            if (error) throw error;
-                            let cumRapChieu = [];
-                            for (const result1 of results1) {
-                                cumRapChieu = await new Promise((resolve, reject) => {
-                                    dbConn.query(
-                                        'SELECT * FROM lichchieuinsert JOIN cumrapvalichchieuinsert ON lichchieuinsert.maLichChieu = cumrapvalichchieuinsert.lichchieuinsert JOIN cumrap ON cumrap.cid = cumrapvalichchieuinsert.cumrap JOIN phiminsertvalichchieuinsert ON cumrapvalichchieuinsert.lichchieuinsert = phiminsertvalichchieuinsert.lichchieuinsert WHERE cumrap.cid = ? AND phiminsertvalichchieuinsert.phiminsert = ?',
-                                        [result1.cumrap, result0.maPhim],
-                                        async (error, results2, fields) => {
-                                            if (error) throw error;
-                                            let lichChieuPhim = [];
-                                            for (const result2 of results2) {
-                                                lichChieuPhim.push({
-                                                    "maLichChieu": result2.maLichChieu,
-                                                    "maRap": result2.maRap,
-                                                    "tenRap": result2.tenRap,
-                                                    "ngayChieuGioChieu": result2.ngayChieuGioChieu,
-                                                    "giaVe": result2.giaVe,
-                                                    "thoiLuong": result2.thoiLuong
-                                                });
-                                            }
-                                            const cumrap = {
-                                                "lichChieuPhim": lichChieuPhim,
-                                                "maCumRap": result1.maCumRap,
-                                                "tenCumRap": result1.tenCumRap,
-                                                "hinhAnh": null
-                                            };
-                                            cumRapChieu.push(cumrap);
-                                            resolve(cumRapChieu);
-                                        }
-                                    );
-                                });
-                            }
-                            const hethong = {
-                                "cumRapChieu": cumRapChieu,
-                                "maHeThongRap": results1[0]?.maHeThongRap,
-                                "tenHeThongRap": results1[0]?.tenHeThongRap,
-                                "logo": results1[0]?.logo
-                            };
-                            heThongRapChieu.push(hethong);
-                            resolve(heThongRapChieu);
-                        }
-                    );
-                });
+          );
+        });
+
+        const cumRapMap = new Map();
+
+        for (const result1 of results1) {
+          const results2 = await new Promise((resolve, reject) => {
+            dbConn.query(
+              `SELECT * FROM lichchieuinsert 
+               JOIN cumrapvalichchieuinsert ON lichchieuinsert.maLichChieu = cumrapvalichchieuinsert.lichchieuinsert 
+               JOIN cumrap ON cumrap.cid = cumrapvalichchieuinsert.cumrap 
+               JOIN phiminsertvalichchieuinsert ON cumrapvalichchieuinsert.lichchieuinsert = phiminsertvalichchieuinsert.lichchieuinsert 
+               WHERE cumrap.cid = ? AND phiminsertvalichchieuinsert.phiminsert = ?`,
+              [result1.cumrap, result0.maPhim],
+              (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+              }
+            );
+          });
+
+          const lichMap = new Map();
+          for (const row of results2) {
+            if (!lichMap.has(row.maLichChieu)) {
+              lichMap.set(row.maLichChieu, {
+                maLichChieu: row.maLichChieu,
+                maRap: row.maRap,
+                tenRap: row.tenRap,
+                ngayChieuGioChieu: row.ngayChieuGioChieu,
+                giaVe: row.giaVe,
+                thoiLuong: row.thoiLuong
+              });
             }
-            const final = {
-                "heThongRapChieu": heThongRapChieu,
-                "maPhim": results0[0].maPhim,
-                "tenPhim": results0[0].tenPhim,
-                "biDanh": results0[0].biDanh,
-                "trailer": results0[0].trailer,
-                "hinhAnh": results0[0].hinhAnh.toString(),
-                "moTa": results0[0].moTa,
-                "maNhom": "GP09",
-                "ngayKhoiChieu": results0[0].ngayKhoiChieu,
-                "danhGia": results0[0].danhGia,
-                "nhaSanXuat": results0[0].nhaSanXuat,
-                "daoDien": results0[0].daoDien,
-                "dienVien": results0[0].dienVien,
-                "maTheLoaiPhim": results0[0].maTheLoaiPhim,
-                "dinhDang": results0[0].dinhDang,
-            };
-            return res.send(final);
+          }
+
+          const lichChieuPhim = Array.from(lichMap.values());
+
+          if (!cumRapMap.has(result1.maCumRap)) {
+            cumRapMap.set(result1.maCumRap, {
+              lichChieuPhim,
+              maCumRap: result1.maCumRap,
+              tenCumRap: result1.tenCumRap,
+              hinhAnh: null
+            });
+          } else {
+            const exist = cumRapMap.get(result1.maCumRap);
+            const merged = [...exist.lichChieuPhim, ...lichChieuPhim];
+            const unique = new Map(merged.map(l => [l.maLichChieu, l]));
+            exist.lichChieuPhim = Array.from(unique.values());
+          }
         }
-    );
+
+        heThongRapChieu.push({
+          cumRapChieu: Array.from(cumRapMap.values()),
+          maHeThongRap: results1[0]?.maHeThongRap,
+          tenHeThongRap: results1[0]?.tenHeThongRap,
+          logo: results1[0]?.logo
+        });
+      }
+
+      const final = {
+        heThongRapChieu,
+        maPhim: results0[0].maPhim,
+        tenPhim: results0[0].tenPhim,
+        biDanh: results0[0].biDanh,
+        trailer: results0[0].trailer,
+        hinhAnh: results0[0].hinhAnh.toString(),
+        moTa: results0[0].moTa,
+        maNhom: "GP09",
+        ngayKhoiChieu: results0[0].ngayKhoiChieu,
+        danhGia: results0[0].danhGia,
+        nhaSanXuat: results0[0].nhaSanXuat,
+        daoDien: results0[0].daoDien,
+        dienVien: results0[0].dienVien,
+        maTheLoaiPhim: results0[0].maTheLoaiPhim,
+        dinhDang: results0[0].dinhDang,
+      };
+
+      return res.send(final);
+    }
+  );
 });
+
 
 app.post('/api/QuanLyRap/AddCumRap', function (req, res) {
     dbConn.query("INSERT INTO nodejsapi.cumrap SET ? ", {
@@ -881,7 +970,7 @@ app.post('/api/QuanLyDatVe/DatVe', async (req, res) => {
                 taiKhoanNguoiDat: req.body.taiKhoanNguoiDung,
                 maLichChieu: req.body.maLichChieu,
                 tenDayDu: ve.tenDayDu,
-                isConfirm: 0,
+                isConfirm: 1,
             }, function (error, results, fields) {
                 if (error) throw error;
                 resolve();
@@ -1093,3 +1182,68 @@ function sortObject(obj) {
     return sorted;
 }
 
+
+
+const crypto = require('crypto');
+const querystring = require('qs');
+
+app.get('/api/vnpay_return', (req, res) => {
+    const vnp_Params = req.query;
+    const secureHash = vnp_Params['vnp_SecureHash'];
+
+    delete vnp_Params['vnp_SecureHash'];
+    delete vnp_Params['vnp_SecureHashType'];
+
+    const sortedParams = sortObject(vnp_Params);
+    const signData = Object.keys(sortedParams)
+        .map(key => `${key}=${sortedParams[key]}`)
+        .join('&');
+
+    const secretKey = require('config').get('vnp_HashSecret');
+    const signed = crypto.createHmac("sha512", secretKey)
+        .update(Buffer.from(signData, 'utf-8'))
+        .digest("hex");
+
+    console.log('✅ Đang xử lý /api/vnpay_return');
+    console.log('→ secureHash:', secureHash);
+    console.log('→ signed:', signed);
+    console.log('→ vnp_ResponseCode:', vnp_Params['vnp_ResponseCode']);
+
+    if (secureHash === signed && vnp_Params['vnp_ResponseCode'] === '00') {
+        const rawQuery = req.originalUrl.split('?')[1];
+        const parsedQuery = querystring.parse(rawQuery, { allowDots: true });
+
+        const danhSachVe = parsedQuery.danhSachVe?.map(v => JSON.parse(v)) || [];
+        const taiKhoanNguoiDung = parsedQuery.taiKhoanNguoiDung;
+        const maLichChieu = parseInt(parsedQuery.maLichChieu);
+
+        console.log('✅ Đã xác thực chữ ký thành công');
+        console.log('→ taiKhoan:', taiKhoanNguoiDung);
+        console.log('→ maLichChieu:', maLichChieu);
+        console.log('→ danhSachVe:', danhSachVe);
+
+        for (const ve of danhSachVe) {
+            const { tenDayDu } = ve;
+
+            console.log(`🔁 Đang cập nhật vé: ${tenDayDu}`);
+            dbConn.query(
+                `UPDATE datve 
+                 SET isConfirm = b'1' 
+                 WHERE taiKhoanNguoiDat = ? AND maLichChieu = ? AND tenDayDu = ?`,
+                [taiKhoanNguoiDung, maLichChieu, tenDayDu],
+                (err, result) => {
+                    if (err) {
+                        console.error('❌ Lỗi update datve:', err);
+                    } else {
+                        console.log(`✅ Vé ${tenDayDu} cập nhật thành công. Affected: ${result.affectedRows}`);
+                    }
+                }
+            );
+        }
+
+        res.redirect('http://localhost:3000/result-booking');
+    } else {
+        console.warn('❌ Không xác thực được giao dịch hoặc giao dịch thất bại');
+        res.redirect('http://localhost:3000/result-booking?fail=true');
+    }
+});

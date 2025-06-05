@@ -261,9 +261,9 @@ const columns = [
         width: 200,
         renderCell: (params) => (
             <Action
-                onEdit={handleEdit}
+                onEdit={() => handleEdit(params.row)}
                 onDeleted={() => handleDeleteOne(params.row.id)}
-                phimItem={params.row.id}
+                phimItem={params.row}
             />
         ),
         headerAlign: "center",

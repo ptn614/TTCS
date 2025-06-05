@@ -84,7 +84,7 @@ export default function ResultBookTicket() {
                             <tr>
                                 <td valign='top'>Trạng thái:</td>
                                 <td>
-                                    {successBookTicketTicketMessage && <span>Đặt vé thành công qua <span className={classes.paymentColor}>{paymentMethod}</span></span>}
+                                    {successBookTicketTicketMessage && <span>Đặt vé thành công qua MOMO cinema<span className={classes.paymentColor}>{paymentMethod}</span></span>}
                                     {errorBookTicketMessage && <span>Đặt vé thất bại: <span className={classes.errorColor}>{errorBookTicketMessage}</span></span>}
                                 </td>
                             </tr>

@@ -10,17 +10,15 @@ function Index(props) {
   const history = useHistory();
   const classes = useStyles({ customScrollbar, underLine });
 
-  // Trạng thái để quản lý phim được chọn
   const [selectedPhimId, setSelectedPhimId] = useState(null);
 
-  // Xử lý click vào giờ để chuyển trang
   const handleTimeClick = (maPhim, maLichChieu) => {
     history.push(`/detail/${maPhim}?maLichChieu=${maLichChieu}`);
   };
 
   return (
     <div className={classes.lstPhim}>
-      {props.lstPhim.map(phim => (
+      {Array.from(new Map(props.lstPhim.map(phim => [phim.maPhim, phim])).values()).map(phim => (
         <div key={phim.maPhim} className={classes.phimWrapper}>
           <div className={`${classes.phim} ${selectedPhimId === phim.maPhim ? classes.phimActive : ''}`}>
             <div className={classes.phim__info}>
@@ -33,12 +31,24 @@ function Index(props) {
               />
               <div className={classes.phim__text}>
                 <p className={classes.phim__text_name}>{phim.tenPhim}</p>
-                {/* Các ô thời gian */}
                 <div className={classes.groupTime}>
-                  {(props.selectedDate
-                    ? phim.lstLichChieuTheoPhim?.filter(lc => lc.ngayChieuGioChieu?.slice(0, 10) === props.selectedDate)
-                    : phim.lstLichChieuTheoPhim
-                  )?.map((lc) => (
+                  {Array.from(
+                    new Map(
+                      (
+                        (props.selectedDate
+                          ? phim.lstLichChieuTheoPhim?.filter(lc =>
+                              lc.ngayChieuGioChieu?.slice(0, 10) === props.selectedDate
+                            )
+                          : phim.lstLichChieuTheoPhim
+                        ) || []
+                      )
+                      .filter(lc => {
+                        const date = new Date(lc.ngayChieuGioChieu);
+                        return !isNaN(date.getTime());
+                      })
+                      .map(lc => [lc.maLichChieu, lc])
+                    ).values()
+                  ).map((lc) => (
                     <ButtonCheckout
                       key={lc.maLichChieu}
                       lichChieuTheoPhim={lc}
